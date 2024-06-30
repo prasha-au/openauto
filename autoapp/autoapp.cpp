@@ -6,6 +6,7 @@
 #include <QStackedWidget>
 #include <QFile>
 #include <QThread>
+#include <QMetaType>
 #include "aasdk/USB/USBHub.hpp"
 #include "aasdk/USB/ConnectedAccessoriesEnumerator.hpp"
 #include "aasdk/USB/AccessoryModeQueryChain.hpp"
@@ -151,6 +152,7 @@ int main(int argc, char* argv[])
 
 
     // ===================================== KEYPRESS FORWARDER
+    qRegisterMetaType<Qt::Key>();
 
     autoapp::service::SteeringWheelControl swcWorker;
     swcWorker.start();

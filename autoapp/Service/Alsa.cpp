@@ -36,9 +36,10 @@ void Alsa::run()
         if (mixerHandle_ != nullptr) {
             snd_mixer_close(mixerHandle_);
         }
-        mixerHandle_ = nullptr;
+        mixerElement_ = nullptr;
     }
 
+    OPENAUTO_LOG(info) << "[Alsa] Service is ready";
 
     while (true)
     {
@@ -73,7 +74,7 @@ void Alsa::run()
 
 void Alsa::adjustVolumeRelative(int amount)
 {
-    if (mixerHandle_ == nullptr) {
+    if (mixerElement_ == nullptr) {
         OPENAUTO_LOG(error) << "[Alsa] Cannot adjust volume - not initialized";
         return;
     }
@@ -84,7 +85,7 @@ void Alsa::adjustVolumeRelative(int amount)
 
 void Alsa::toggleMute()
 {
-    if (mixerHandle_ == nullptr) {
+    if (mixerElement_ == nullptr) {
         OPENAUTO_LOG(error) << "[Alsa] Cannot adjust volume - not initialized";
         return;
     }
