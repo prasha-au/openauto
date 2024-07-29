@@ -18,6 +18,8 @@
 
 #include "OpenautoLog.hpp"
 #include "openauto/Service/VideoService.hpp"
+#include "openauto/Service/AppEvent.hpp"
+#include <QApplication>
 
 namespace openauto
 {
@@ -46,6 +48,7 @@ void VideoService::stop()
     strand_.dispatch([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[VideoService] stop.";
         videoOutput_->stop();
+        emitAppEvent(AppEventType::ProjectionEnd);
     });
 }
 
@@ -159,6 +162,17 @@ void VideoService::onVideoFocusRequest(const aasdk::proto::messages::VideoFocusR
     OPENAUTO_LOG(info) << "[VideoService] video focus request, display index: " << request.disp_index()
                        << ", focus mode: " << request.focus_mode()
                        << ", focus reason: " << request.focus_reason();
+
+    switch (request.focus_mode()) {
+        case aasdk::proto::enums::VideoFocusMode_Enum_FOCUSED:
+            emitAppEvent(AppEventType::ProjectionShow);
+            break;
+        case aasdk::proto::enums::VideoFocusMode_Enum_UNFOCUSED:
+            emitAppEvent(AppEventType::ProjectionEnd);
+            break;
+        case aasdk::proto::enums::VideoFocusMode_Enum_NONE:
+            break;
+    }
 
     this->sendVideoFocusIndication();
     channel_->receive(this->shared_from_this());

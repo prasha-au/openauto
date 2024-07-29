@@ -3,7 +3,7 @@ import QtGStreamer 1.0
 
 VideoItem {
       id: aaVideo
-      width: 300
-      height: 300
+      width: 1920
+      height: 1080
       surface: videoSurface
 }

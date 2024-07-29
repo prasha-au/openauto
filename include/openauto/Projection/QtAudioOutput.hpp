@@ -21,7 +21,6 @@
 #include <QAudioOutput>
 #include <QAudioFormat>
 #include "IAudioOutput.hpp"
-#include "SequentialBuffer.hpp"
 
 namespace openauto
 {
@@ -56,7 +55,7 @@ protected slots:
 
 private:
     QAudioFormat audioFormat_;
-    SequentialBuffer audioBuffer_;
+    QIODevice * audioBuffer_;
     std::unique_ptr<QAudioOutput> audioOutput_;
     bool playbackStarted_;
 };

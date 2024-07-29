@@ -4,7 +4,7 @@ set (openauto_VERSION_MAJOR 2)
 set (openauto_VERSION_MINOR 1)
 set (openauto_VERSION_PATCH 0)
 
-project(openauto 
+project(openauto
 VERSION ${openauto_VERSION_MAJOR}.${openauto_VERSION_MINOR}.${openauto_VERSION_PATCH}
 LANGUAGES CXX)
 
@@ -17,7 +17,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set(base_directory ${CMAKE_CURRENT_SOURCE_DIR})					   
+set(base_directory ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -45,9 +45,7 @@ find_package(libusb-1.0 REQUIRED)
 find_package(Qt5 COMPONENTS Multimedia MultimediaWidgets Bluetooth Qml Quick QuickWidgets REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(rtaudio REQUIRED)
 find_package(aasdk REQUIRED)
-find_package(h264 REQUIRED)
 find_package(Threads)
 
 include(${base_directory}/cmake_modules/gitversion.cmake)
@@ -55,29 +53,27 @@ if(RPI_BUILD)
     find_package(libomx)
 endif()
 
-if(GST_BUILD)
-    find_package(GObject)
-    find_package(Qt5GStreamer)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GST REQUIRED
-                      gstreamer-1.0>=1.4
-                      gstreamer-sdp-1.0>=1.4
-                      gstreamer-video-1.0>=1.4
-                      gstreamer-app-1.0>=1.4)
-    add_definitions(-DUSE_GST)
-    if(RPI_BUILD)
-        add_definitions(-DRPI)
-        include(${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/functions.cmake)
-        findRpiRevision( RPI_REVISION )
-        math(EXPR RPI_MODEL "(0x${RPI_REVISION}>>4)&0xFF")
-        message( "-- Raspberry Pi Model: ${RPI_MODEL}" )
-        if(RPI_MODEL EQUAL 17)
-            message("Raspberry Pi 4 Found")
-            add_definitions(-DPI4)
-        endif(RPI_MODEL EQUAL 17)
-    endif(RPI_BUILD)
+find_package(GObject)
+find_package(Qt5GStreamer)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GST REQUIRED
+                  gstreamer-1.0>=1.4
+                  gstreamer-sdp-1.0>=1.4
+                  gstreamer-video-1.0>=1.4
+                  gstreamer-app-1.0>=1.4)
+if(RPI_BUILD)
+    add_definitions(-DRPI)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/functions.cmake)
+    findRpiRevision( RPI_REVISION )
+    math(EXPR RPI_MODEL "(0x${RPI_REVISION}>>4)&0xFF")
+    message( "-- Raspberry Pi Model: ${RPI_MODEL}" )
+    if(RPI_MODEL EQUAL 17)
+        message("Raspberry Pi 4 Found")
+        add_definitions(-DPI4)
+    endif(RPI_MODEL EQUAL 17)
+endif(RPI_BUILD)
 message(STATUS "${GST_LIBRARIES}")
-endif(GST_BUILD)
+
 
 add_subdirectory(btservice_proto)
 set(BTSERVICE_PROTO_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
@@ -99,7 +95,7 @@ install(DIRECTORY bin DESTINATION bin COMPONENT applications)
 
 SET(CPACK_GENERATOR "DEB")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "OpenDsh") #required
-SET(CPACK_PACKAGE_VENDOR "OpenDsh") 
+SET(CPACK_PACKAGE_VENDOR "OpenDsh")
 set(CPACK_PACKAGE_VERSION ${openauto_VERSION_STRING})
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
@@ -125,4 +121,4 @@ set(CPACK_INSTALL_TYPE_FULL_DISPLAY_NAME "Everything")
 set(CPACK_COMPONENT_LIBRARIES_INSTALL_TYPES Developer Full)
 set(CPACK_COMPONENT_HEADERS_INSTALL_TYPES Developer Full)
 set(CPACK_COMPONENT_APPLICATIONS_INSTALL_TYPES Full)
-INCLUDE(CPack)												 
+INCLUDE(CPack)

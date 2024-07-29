@@ -76,10 +76,10 @@ void MediaStatusService::onMetadataUpdate(const aasdk::proto::messages::MediaInf
 
 void MediaStatusService::onPlaybackUpdate(const aasdk::proto::messages::MediaInfoChannelPlaybackData& playback)
 {
-    OPENAUTO_LOG(info) << "[MediaStatusService] Playback update"
-                       << ", source: " <<  playback.media_source()
-                       << ", state: " << playback.playback_state()
-                       << ", progress: " << playback.track_progress();
+    // OPENAUTO_LOG(info) << "[MediaStatusService] Playback update"
+    //                    << ", source: " <<  playback.media_source()
+    //                    << ", state: " << playback.playback_state()
+    //                    << ", progress: " << playback.track_progress();
     if(aa_interface_ != NULL)
     {
         aa_interface_->mediaPlaybackUpdate(playback);

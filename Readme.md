@@ -17,7 +17,7 @@ Having <a href="https://github.com/openDsh/aasdk">aasdk</a> built and install fi
 ```sudo apt-get update
 sudo apt-get -y install cmake build-essential git
 
-sudo apt-get install libboost-all-dev libusb-1.0.0-dev libssl-dev cmake libprotobuf-dev protobuf-c-compiler protobuf-compiler libqt5multimedia5 libqt5multimedia5-plugins libqt5multimediawidgets5 qtmultimedia5-dev libqt5bluetooth5 libqt5bluetooth5-bin qtconnectivity5-dev pulseaudio librtaudio-dev
+sudo apt-get install libboost-all-dev libusb-1.0.0-dev libssl-dev cmake libprotobuf-dev protobuf-c-compiler protobuf-compiler libqt5multimedia5 libqt5multimedia5-plugins libqt5multimediawidgets5 qtmultimedia5-dev libqt5bluetooth5 libqt5bluetooth5-bin qtconnectivity5-dev pulseaudio
 
 git clone https://github.com/OpenDsh/openauto
 
@@ -61,9 +61,84 @@ Copyrights (c) 2018 f1x.studio (Michal Szwaj)
  - [Boost libraries](http://www.boost.org/)
  - [Qt libraries](https://www.qt.io/)
  - [CMake](https://cmake.org/)
- - [RtAudio](https://www.music.mcgill.ca/~gary/rtaudio/playback.html)
  - Broadcom ilclient from RaspberryPI 3 firmware
  - OpenMAX IL API
 
 ### Remarks
 **This software is not certified by Google Inc. It is created for R&D purposes and may not work as expected by the original authors. Do not use while driving. You use this software at your own risk.**
+
+
+
+## New stuff...
+Commands
+```bash
+mkdir build && cd build && cmake ../
+cd /workspaces/openauto && ./bin/autoapp
+```
+
+Stripped out:
+- stripped rtaudio
+- stripped omx video
+- rename GSTVideoOutput to QtVideoOutput
+
+
+## Pipe Pulseaudio to Windows...
+https://github.com/microsoft/WSL/issues/5816#issuecomment-682242686
+https://stackoverflow.com/questions/52890474/how-to-get-docker-audio-and-input-with-windows-or-mac-host
+
+```powershell
+cd c:\pulse
+.\pulseaudio.exe -F .\config.pa
+```
+
+
+## Temp SWC Setup
+
+```bash
+sudo apt-get install python3
+pip install Adafruit_ADS1x15 --break-system-packages
+```
+
+## Pulse Fix
+- Add the following to the `/etc/pulse/default.conf`. It may help....
+```
+; default-fragments = 4
+default-fragment-size-msec = 15
+
+; enable-deferred-volume = yes
+; deferred-volume-safety-margin-usec = 8000
+; deferred-volume-extra-delay-usec = 0
+
+# CSNG params
+resample-method = soxr-hq
+flat-volumes = no
+
+enable-remixing = yes
+enable-lfe-remixing = yes
+high-priority = yes
+nice-level = -11
+
+default-sample-channels = 2
+default-channel-map = front-left,front-right
+
+# Crankshaft detected sample rate
+default-sample-rate = 48000
+
+# Crankshaft detected sample format
+default-sample-format = s16le
+```
+
+
+- Install Pipewire...
+```bash
+
+apt install pipewire-audio pipewire-pulse pipewire-alsa
+apt remove pulseaudio-alsa
+
+pactl info # this should show (on PipeWire xxx) under Server Name
+```
+
+
+
+## Volume control in app
+Added new keybindings to adjust volume using keypresses and a volume indicator that pops up when the volume changes.

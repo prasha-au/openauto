@@ -1,23 +1,11 @@
-/*
-*  This file is part of openauto project.
-*  Copyright (C) 2018 f1x.studio (Michal Szwaj)
-*
-*  openauto is free software: you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 3 of the License, or
-*  (at your option) any later version.
-
-*  openauto is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  You should have received a copy of the GNU General Public License
-*  along with openauto. If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include <thread>
 #include <QApplication>
+#include <QWindow>
+#include <QMainWindow>
+#include <QSplashScreen>
+#include <QStackedWidget>
+#include <QFile>
+#include <QThread>
 #include "aasdk/USB/USBHub.hpp"
 #include "aasdk/USB/ConnectedAccessoriesEnumerator.hpp"
 #include "aasdk/USB/AccessoryModeQueryChain.hpp"
@@ -30,13 +18,18 @@
 #include "openauto/Service/AndroidAutoEntityFactory.hpp"
 #include "openauto/Service/ServiceFactory.hpp"
 #include "openauto/Configuration/Configuration.hpp"
-#include "autoapp/UI/MainWindow.hpp"
-#include "autoapp/UI/SettingsWindow.hpp"
-#include "autoapp/UI/ConnectDialog.hpp"
+#include "./Pages/HomePage.hpp"
+#include "./Pages/ProjectionPage.hpp"
+#include "./Service/OpenautoEventFilter.hpp"
+#include "./Service/KeyReceiver.hpp"
+#include "./Service/Alsa.hpp"
 #include "OpenautoLog.hpp"
 
 using namespace openauto;
 using ThreadPool = std::vector<std::thread>;
+
+const int SCREEN_WIDTH = 710;
+const int SCREEN_HEIGHT = 480;
 
 void startUSBWorkers(boost::asio::io_service& ioService, libusb_context* usbContext, ThreadPool& threadPool)
 {
@@ -67,8 +60,20 @@ void startIOServiceWorkers(boost::asio::io_service& ioService, ThreadPool& threa
     threadPool.emplace_back(ioServiceWorker);
 }
 
+
+
 int main(int argc, char* argv[])
 {
+    QApplication app(argc, argv);
+    QPixmap pixmap(":/ico_androidauto.png");
+    QSize pixmapSize = pixmap.size();
+    QSplashScreen splash(pixmap);
+    splash.move(SCREEN_WIDTH / 2 - pixmapSize.width() / 2, SCREEN_HEIGHT / 2 - pixmapSize.height() / 2);
+    splash.show();
+
+    app.processEvents();
+
+    // ===================================== SERVICE STUFF
     libusb_context* usbContext;
     if(libusb_init(&usbContext) != 0)
     {
@@ -82,52 +87,123 @@ int main(int argc, char* argv[])
     startUSBWorkers(ioService, usbContext, threadPool);
     startIOServiceWorkers(ioService, threadPool);
 
-    QApplication qApplication(argc, argv);
-    autoapp::ui::MainWindow mainWindow;
-    mainWindow.setWindowFlags(Qt::WindowStaysOnTopHint);
 
+    autoapp::service::Alsa alsaWorker;
+
+    // ===================================== UI STUFF
+
+    QMainWindow window;
+
+    QStackedWidget *stackedWidget = new QStackedWidget;
+    stackedWidget->setStyleSheet("background-color: #333333;color: #eeeeec;");
+
+
+    autoapp::pages::HomePage homePage;
+    QObject::connect(&homePage, &autoapp::pages::HomePage::exit, []() { std::exit(0); });
+    app.setOverrideCursor(Qt::BlankCursor);
+    stackedWidget->addWidget(&homePage);
+
+    autoapp::pages::ProjectionPage projectionPage(&alsaWorker);
+    projectionPage.hide();
+    stackedWidget->addWidget(&projectionPage);
+
+    stackedWidget->setCurrentIndex(0);
+
+
+    window.setCentralWidget(stackedWidget);
+    window.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    projectionPage.aaFrame->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+
+    // ===================================== SERVICE STUFF
     auto configuration = std::make_shared<openauto::configuration::Configuration>();
-    autoapp::ui::SettingsWindow settingsWindow(configuration);
-    settingsWindow.setWindowFlags(Qt::WindowStaysOnTopHint);
-
-    openauto::configuration::RecentAddressesList recentAddressesList(7);
-    recentAddressesList.read();
 
     aasdk::tcp::TCPWrapper tcpWrapper;
-    autoapp::ui::ConnectDialog connectDialog(ioService, tcpWrapper, recentAddressesList);
-    connectDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
-
-    QObject::connect(&mainWindow, &autoapp::ui::MainWindow::exit, []() { std::exit(0); });
-    QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openSettings, &settingsWindow, &autoapp::ui::SettingsWindow::showFullScreen);
-    QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openConnectDialog, &connectDialog, &autoapp::ui::ConnectDialog::exec);
-
-    qApplication.setOverrideCursor(Qt::BlankCursor);
-    QObject::connect(&mainWindow, &autoapp::ui::MainWindow::toggleCursor, [&qApplication]() {
-        const auto cursor = qApplication.overrideCursor()->shape() == Qt::BlankCursor ? Qt::ArrowCursor : Qt::BlankCursor;
-        qApplication.setOverrideCursor(cursor);
-    });
-
-    mainWindow.showFullScreen();
-
     aasdk::usb::USBWrapper usbWrapper(usbContext);
     aasdk::usb::AccessoryModeQueryFactory queryFactory(usbWrapper, ioService);
     aasdk::usb::AccessoryModeQueryChainFactory queryChainFactory(usbWrapper, ioService, queryFactory);
-    openauto::service::ServiceFactory serviceFactory(ioService, configuration);
+    openauto::service::ServiceFactory serviceFactory(ioService, configuration, projectionPage.aaFrame);
     openauto::service::AndroidAutoEntityFactory androidAutoEntityFactory(ioService, configuration, serviceFactory);
 
     auto usbHub(std::make_shared<aasdk::usb::USBHub>(usbWrapper, ioService, queryChainFactory));
     auto connectedAccessoriesEnumerator(std::make_shared<aasdk::usb::ConnectedAccessoriesEnumerator>(usbWrapper, ioService, queryChainFactory));
-    auto app = std::make_shared<openauto::App>(ioService, usbWrapper, tcpWrapper, androidAutoEntityFactory, std::move(usbHub), std::move(connectedAccessoriesEnumerator));
+    auto openautoApp = std::make_shared<openauto::App>(ioService, usbWrapper, tcpWrapper, androidAutoEntityFactory, std::move(usbHub), std::move(connectedAccessoriesEnumerator));
 
-    QObject::connect(&connectDialog, &autoapp::ui::ConnectDialog::connectionSucceed, [&app](auto socket) {
-        app->start(std::move(socket));
+
+    autoapp::service::OpenautoEventFilter filter;
+    app.installEventFilter(&filter);
+    QObject::connect(&filter, &autoapp::service::OpenautoEventFilter::onAppEvent, [&projectionPage, &stackedWidget, &openautoApp](openauto::service::AppEventType value) {
+        switch (value) {
+            case openauto::service::AppEventType::ProjectionShow:
+                stackedWidget->setCurrentIndex(1);
+                projectionPage.show();
+                break;
+            case openauto::service::AppEventType::ProjectionEnd:
+                projectionPage.hide();
+                stackedWidget->setCurrentIndex(0);
+                break;
+        }
     });
 
-    app->waitForDevice(true);
 
-    auto result = qApplication.exec();
+    alsaWorker.start();
+
+
+    // ===================================== KEYPRESS FORWARDER
+    autoapp::service::KeyReceiver externalKeyHandler;
+    QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::onKeyPress, stackedWidget, [&app, &alsaWorker](int key) {
+        if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
+            alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -5 : 5);
+        } else if (key == Qt::Key_VolumeMute) {
+            alsaWorker.toggleMute();
+        } else {
+            app.postEvent(QApplication::focusWidget(), new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));
+        }
+    });
+    QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::finished, stackedWidget, &QObject::deleteLater);
+    externalKeyHandler.start();
+
+
+    // ===================================== DEVELOPMENT TEST CONNECT
+
+    QObject::connect(&homePage, &autoapp::pages::HomePage::testConnect, [&openautoApp, &tcpWrapper, &ioService]() {
+        OPENAUTO_LOG(info) << "Test connection";
+        aasdk::tcp::ITCPEndpoint::SocketPointer socket = std::make_shared<boost::asio::ip::tcp::socket>(ioService);
+        try
+        {
+            auto ec = tcpWrapper.connect(*socket, "192.168.1.8", 5277);
+            if (!ec) {
+                OPENAUTO_LOG(info) << "TCP CONNECTION MADE";
+                openautoApp->start(std::move(socket));
+
+            } else {
+                OPENAUTO_LOG(info) << "TCP CONNECTION FAILED";
+            }
+        }
+        catch(const boost::system::system_error& se)
+        {
+            OPENAUTO_LOG(error) << "Failed to open socket";
+        }
+    });
+
+
+    openautoApp->waitForDevice(true);
+
+    window.show();
+    window.activateWindow();
+    splash.finish(&window);
+
+    auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));
 
     libusb_exit(usbContext);
+
+    externalKeyHandler.quit();
+    externalKeyHandler.wait();
+
+    alsaWorker.quit();
+    alsaWorker.wait();
+
     return result;
 }
+

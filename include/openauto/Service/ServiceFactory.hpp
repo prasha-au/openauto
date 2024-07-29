@@ -21,8 +21,6 @@
 #include "openauto/Service/IServiceFactory.hpp"
 #include "openauto/Configuration/IConfiguration.hpp"
 #include "openauto/Projection/InputDevice.hpp"
-#include "openauto/Projection/OMXVideoOutput.hpp"
-#include "openauto/Projection/GSTVideoOutput.hpp"
 #include "openauto/Projection/QtVideoOutput.hpp"
 #include "openauto/Service/MediaStatusService.hpp"
 #include "openauto/Service/NavigationStatusService.hpp"
@@ -38,18 +36,14 @@ class IAndroidAutoInterface;
 class ServiceFactory : public IServiceFactory
 {
 public:
-    ServiceFactory(boost::asio::io_service& ioService, configuration::IConfiguration::Pointer configuration, QWidget* activeArea=nullptr, std::function<void(bool)> activeCallback=nullptr, bool nightMode=false);
+    ServiceFactory(boost::asio::io_service& ioService, configuration::IConfiguration::Pointer configuration, QWidget* activeArea=nullptr, bool nightMode=false);
     ServiceList create(aasdk::messenger::IMessenger::Pointer messenger) override;
     void setOpacity(unsigned int alpha);
-    void resize();
     void setNightMode(bool nightMode);
     void sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode, projection::WheelDirection wheelDirection = projection::WheelDirection::NONE, projection::ButtonEventType buttonEventType = projection::ButtonEventType::NONE);
     void sendKeyEvent(QKeyEvent* event);
     void setAndroidAutoInterface(IAndroidAutoInterface* aa_interface);
     static QRect mapActiveAreaToGlobal(QWidget* activeArea);
-#ifdef USE_OMX
-    static projection::DestRect QRectToDestRect(QRect rect);
-#endif
 
 private:
     IService::Pointer createVideoService(aasdk::messenger::IMessenger::Pointer messenger);
@@ -65,13 +59,7 @@ private:
     QRect screenGeometry_;
     std::function<void(bool)> activeCallback_;
     std::shared_ptr<projection::InputDevice> inputDevice_;
-#if defined USE_OMX
-    std::shared_ptr<projection::OMXVideoOutput> omxVideoOutput_;
-#elif defined USE_GST
-    std::shared_ptr<projection::GSTVideoOutput> gstVideoOutput_;
-#else
-    projection::QtVideoOutput *qtVideoOutput_;
-#endif
+    std::shared_ptr<projection::QtVideoOutput> qtVideoOutput_;
     btservice::btservice btservice_;
     bool nightMode_;
     std::weak_ptr<SensorService> sensorService_;

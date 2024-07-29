@@ -32,9 +32,6 @@
 #include "openauto/Service/InputService.hpp"
 #include "openauto/Service/NavigationStatusService.hpp"
 #include "openauto/Projection/QtVideoOutput.hpp"
-#include "openauto/Projection/GSTVideoOutput.hpp"
-#include "openauto/Projection/OMXVideoOutput.hpp"
-#include "openauto/Projection/RtAudioOutput.hpp"
 #include "openauto/Projection/QtAudioOutput.hpp"
 #include "openauto/Projection/QtAudioInput.hpp"
 #include "openauto/Projection/InputDevice.hpp"
@@ -48,19 +45,12 @@ namespace openauto
 {
 namespace service
 {
-ServiceFactory::ServiceFactory(boost::asio::io_service& ioService, configuration::IConfiguration::Pointer configuration, QWidget *activeArea, std::function<void(bool)> activeCallback, bool nightMode)
+ServiceFactory::ServiceFactory(boost::asio::io_service& ioService, configuration::IConfiguration::Pointer configuration, QWidget *activeArea, bool nightMode)
     : ioService_(ioService)
     , configuration_(std::move(configuration))
     , activeArea_(activeArea)
     , screenGeometry_(this->mapActiveAreaToGlobal(activeArea_))
-    , activeCallback_(activeCallback)
-#if defined USE_OMX
-    , omxVideoOutput_(std::make_shared<projection::OMXVideoOutput>(configuration_, this->QRectToDestRect(screenGeometry_), activeCallback_))
-#elif defined USE_GST
-    , gstVideoOutput_((QGst::init(nullptr, nullptr), std::make_shared<projection::GSTVideoOutput>(configuration_, activeArea_, activeCallback_)))
-#else
-    , qtVideoOutput_(nullptr)
-#endif
+    , qtVideoOutput_((QGst::init(nullptr, nullptr), std::make_shared<projection::QtVideoOutput>(configuration_, activeArea_)))
     , btservice_(configuration_)
     , nightMode_(nightMode)
 {
@@ -97,23 +87,8 @@ ServiceList ServiceFactory::create(aasdk::messenger::IMessenger::Pointer messeng
 
 IService::Pointer ServiceFactory::createVideoService(aasdk::messenger::IMessenger::Pointer messenger)
 {
-#if defined USE_OMX
-    auto videoOutput(omxVideoOutput_);
-#elif defined USE_GST
-    auto videoOutput(gstVideoOutput_);
-#else
-    qtVideoOutput_ = new projection::QtVideoOutput(configuration_, activeArea_);
-    if(activeCallback_ != nullptr)
-    {
-        QObject::connect(qtVideoOutput_, &projection::QtVideoOutput::startPlayback, [callback = activeCallback_]() { callback(true); });
-        QObject::connect(qtVideoOutput_, &projection::QtVideoOutput::stopPlayback, [this]() {
-            activeCallback_(false);
-            qtVideoOutput_->disconnect();
-            qtVideoOutput_ = nullptr;
-        });
-    }
-    projection::IVideoOutput::Pointer videoOutput(qtVideoOutput_, std::bind(&QObject::deleteLater, std::placeholders::_1));
-#endif
+    auto videoOutput(qtVideoOutput_);
+
     return std::make_shared<VideoService>(ioService_, messenger, std::move(videoOutput));
 }
 
@@ -181,63 +156,27 @@ void ServiceFactory::createAudioServices(ServiceList& serviceList, aasdk::messen
 {
     if(configuration_->musicAudioChannelEnabled())
     {
-        auto mediaAudioOutput = configuration_->getAudioOutputBackendType() == configuration::AudioOutputBackendType::RTAUDIO ?
-                    std::make_shared<projection::RtAudioOutput>(2, 16, 48000) :
-                    projection::IAudioOutput::Pointer(new projection::QtAudioOutput(2, 16, 48000), std::bind(&QObject::deleteLater, std::placeholders::_1));
+        auto mediaAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(2, 16, 48000), std::bind(&QObject::deleteLater, std::placeholders::_1));
 
         serviceList.emplace_back(std::make_shared<MediaAudioService>(ioService_, messenger, std::move(mediaAudioOutput)));
     }
 
     if(configuration_->speechAudioChannelEnabled())
     {
-        auto speechAudioOutput = configuration_->getAudioOutputBackendType() == configuration::AudioOutputBackendType::RTAUDIO ?
-                    std::make_shared<projection::RtAudioOutput>(1, 16, 16000) :
-                    projection::IAudioOutput::Pointer(new projection::QtAudioOutput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
+        auto speechAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
 
         serviceList.emplace_back(std::make_shared<SpeechAudioService>(ioService_, messenger, std::move(speechAudioOutput)));
     }
 
-    auto systemAudioOutput = configuration_->getAudioOutputBackendType() == configuration::AudioOutputBackendType::RTAUDIO ?
-                std::make_shared<projection::RtAudioOutput>(1, 16, 16000) :
-                projection::IAudioOutput::Pointer(new projection::QtAudioOutput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
+    auto systemAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
 
     serviceList.emplace_back(std::make_shared<SystemAudioService>(ioService_, messenger, std::move(systemAudioOutput)));
 }
 
 void ServiceFactory::setOpacity(unsigned int alpha)
 {
-#ifdef USE_OMX
-    if(omxVideoOutput_ != nullptr)
-    {
-        omxVideoOutput_->setOpacity(alpha);
-    }
-#endif
 }
 
-void ServiceFactory::resize()
-{
-    screenGeometry_ = this->mapActiveAreaToGlobal(activeArea_);
-    if(inputDevice_ != nullptr)
-    {
-        inputDevice_->setTouchscreenGeometry(screenGeometry_);
-    }
-#if defined USE_OMX
-    if(omxVideoOutput_ != nullptr)
-    {
-        omxVideoOutput_->setDestRect(this->QRectToDestRect(screenGeometry_));
-    }
-#elif defined USE_GST
-    if(gstVideoOutput_ != nullptr)
-    {
-        gstVideoOutput_->resize();
-    }
-#else
-    if(qtVideoOutput_ != nullptr)
-    {
-        qtVideoOutput_->resize();
-    }
-#endif
-}
 void ServiceFactory::setAndroidAutoInterface(IAndroidAutoInterface* aa_interface){
     if(aa_interface==NULL) return;
     this->aa_interface_ = aa_interface;
@@ -266,7 +205,7 @@ void ServiceFactory::sendButtonPress(aasdk::proto::enums::ButtonCode::Enum butto
 {
     if(std::shared_ptr<InputService> inputService = inputService_.lock())
     {
-        
+
         inputService->sendButtonPress(buttonCode, wheelDirection, buttonEventType);
     }
 }
@@ -292,13 +231,6 @@ QRect ServiceFactory::mapActiveAreaToGlobal(QWidget* activeArea)
 
     return QRect(p.x(), p.y(), g.width(), g.height());
 }
-
-#ifdef USE_OMX
-projection::DestRect ServiceFactory::QRectToDestRect(QRect rect)
-{
-    return projection::DestRect(rect.x(), rect.y(), rect.width(), rect.height());
-}
-#endif
 
 }
 }

@@ -167,7 +167,7 @@ bool InputDevice::handleKeyEvent(QEvent* event, QKeyEvent* key)
         break;
 
     default:
-        return true;
+        return false;
     }
 
     const auto& buttonCodes = this->getSupportedButtonCodes();
@@ -188,7 +188,7 @@ bool InputDevice::handleTouchEvent(QEvent* event)
         return true;
     }
 
-    
+
     QTouchEvent* qtTouchEvent = static_cast<QTouchEvent*>(event);
     aasdk::proto::enums::TouchAction::Enum type;
     auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
@@ -244,7 +244,7 @@ bool InputDevice::handleTouchEvent(QEvent* event)
             touchEvent->set_action_index(i);
             pointer_id_queue.push(pointer_map.take(pointers[i].id()));
         }
-        
+
         auto touchLocation = touchEvent->add_touch_location();
         touchLocation->set_x((static_cast<float>(pointers[i].pos().x()) / touchscreenGeometry_.width()) * displayGeometry_.width());
         touchLocation->set_y((static_cast<float>(pointers[i].pos().y()) / touchscreenGeometry_.height()) * displayGeometry_.height());

@@ -1,0 +1,1 @@
+Adafruit-ADS1x15==1.0.2

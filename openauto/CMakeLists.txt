@@ -15,19 +15,16 @@ add_library(openauto SHARED
         Service/VideoService.cpp
         Service/NavigationStatusService.cpp
         Service/MediaStatusService.cpp
+        Service/AppEvent.cpp
         Configuration/RecentAddressesList.cpp
         Configuration/Configuration.cpp
         Projection/RemoteBluetoothDevice.cpp
-        Projection/OMXVideoOutput.cpp
         Projection/LocalBluetoothDevice.cpp
         Projection/VideoOutput.cpp
         Projection/InputDevice.cpp
-        Projection/SequentialBuffer.cpp
         Projection/DummyBluetoothDevice.cpp
         Projection/QtVideoOutput.cpp
-        Projection/GSTVideoOutput.cpp 
         Projection/QtAudioInput.cpp
-        Projection/RtAudioOutput.cpp
         Projection/QtAudioOutput.cpp
         ${CMAKE_SOURCE_DIR}/btservice/AndroidBluetoothServer.cpp
         ${CMAKE_SOURCE_DIR}/btservice/AndroidBluetoothServer.cpp
@@ -66,15 +63,14 @@ add_library(openauto SHARED
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/IService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/Pinger.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/InputService.hpp
+        ${CMAKE_SOURCE_DIR}/include/openauto/Service/AppEvent.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IInputDeviceEventHandler.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IVideoOutput.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Projection/RtAudioOutput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/LocalBluetoothDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IAudioOutput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/QtAudioInput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/VideoOutput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IBluetoothDevice.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Projection/OMXVideoOutput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IAudioInput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/DummyBluetoothDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IInputDevice.hpp
@@ -82,13 +78,7 @@ add_library(openauto SHARED
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/QtAudioOutput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/RemoteBluetoothDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/QtVideoOutput.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Projection/SequentialBuffer.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/InputEvent.hpp
-        )
-
-if(GST_BUILD)
-target_sources(openauto PRIVATE	
-        ${CMAKE_SOURCE_DIR}/include/openauto/Projection/GSTVideoOutput.hpp
         )
 
 target_include_directories(openauto SYSTEM PUBLIC
@@ -102,11 +92,9 @@ target_link_libraries(openauto PRIVATE
         ${Qt5QuickWidgets_LIBRARIES}
         ${QTGSTREAMER_QUICK_LIBRARY}
         )
-endif()
 
 target_include_directories(openauto PRIVATE
         ${CMAKE_SOURCE_DIR}/include
-        ${RTAUDIO_INCLUDE_DIRS}
         ${Protobuf_INCLUDE_DIRS}
         )
 
@@ -115,8 +103,6 @@ target_link_libraries(openauto PUBLIC
         Threads::Threads
         ${Boost_LIBRARIES}
         aasdk
-        h264
-        rtaudio
         Qt5::Bluetooth
         Qt5::MultimediaWidgets
         btservice_proto
