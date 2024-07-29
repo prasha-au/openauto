@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include <QThread>
-#include <alsa/asoundlib.h>
 
 namespace autoapp
 {

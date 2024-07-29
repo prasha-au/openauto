@@ -23,6 +23,7 @@
 #include "./Service/OpenautoEventFilter.hpp"
 #include "./Service/KeyReceiver.hpp"
 #include "./Service/Alsa.hpp"
+#include "./Service/SteeringWheelControl.hpp"
 #include "OpenautoLog.hpp"
 
 using namespace openauto;
@@ -164,6 +165,12 @@ int main(int argc, char* argv[])
     externalKeyHandler.start();
 
 
+
+    autoapp::service::SteeringWheelControl swcWorker;
+    swcWorker.start();
+
+
+
     // ===================================== DEVELOPMENT TEST CONNECT
 
     QObject::connect(&homePage, &autoapp::pages::HomePage::testConnect, [&openautoApp, &tcpWrapper, &ioService]() {
@@ -200,6 +207,9 @@ int main(int argc, char* argv[])
 
     externalKeyHandler.quit();
     externalKeyHandler.wait();
+    swcWorker.quit();
+    swcWorker.wait();
+
 
     alsaWorker.quit();
     alsaWorker.wait();
