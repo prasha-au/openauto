@@ -56,7 +56,6 @@ Qt::Key fromHandsFreeMeasurement(float adcVoltage)
     return Qt::Key_unknown;
 }
 
-
 }
 
 
@@ -71,14 +70,27 @@ void SteeringWheelControl::run()
         return;
     }
 
+
+    Qt::Key lastKey = Qt::Key_unknown;
     while (true) {
-        Qt::Key mediaKey = fromMediaMeasurement(readAdcVoltage(0));
-        if (mediaKey != Qt::Key_unknown) {
-            emit onKeyPress(mediaKey);
-        } else {
-            Qt::Key handsFreeKey = fromHandsFreeMeasurement(readAdcVoltage(1));
-            emit onKeyPress(handsFreeKey);
+        Qt::Key newKey = determineKey();
+        if (lastKey == Qt::Key_unknown && newKey != Qt::Key_unknown) {
+            OPENAUTO_LOG(info) << "[SteeringWheelControl] Key pressed: " << newKey;
+            emit onKeyPress(newKey);
         }
+        lastKey = newKey;
+    }
+}
+
+
+Qt::Key SteeringWheelControl::determineKey()
+{
+    Qt::Key mediaKey = fromMediaMeasurement(readAdcVoltage(0));
+    if (mediaKey != Qt::Key_unknown) {
+        return mediaKey;
+    } else {
+        Qt::Key handsFreeKey = fromHandsFreeMeasurement(readAdcVoltage(1));
+        return handsFreeKey;
     }
 }
 

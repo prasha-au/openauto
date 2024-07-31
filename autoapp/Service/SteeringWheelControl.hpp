@@ -17,8 +17,8 @@ class SteeringWheelControl : public QThread
 private:
     void run();
     int i2cFileDescriptor_;
-    int activeKey_;
     float readAdcVoltage(int);
+    Qt::Key determineKey();
 
 signals:
     void onKeyPress(Qt::Key);

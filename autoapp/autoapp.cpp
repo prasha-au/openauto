@@ -151,6 +151,22 @@ int main(int argc, char* argv[])
 
 
     // ===================================== KEYPRESS FORWARDER
+
+    autoapp::service::SteeringWheelControl swcWorker;
+    swcWorker.start();
+    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, stackedWidget, [&app, &alsaWorker](Qt::Key key) {
+        if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
+            alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -10 : 10);
+        } else if (key == Qt::Key_VolumeMute) {
+            alsaWorker.toggleMute();
+        } else {
+            app.postEvent(QApplication::focusWidget(), new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));
+        }
+    });
+
+
+
+
     autoapp::service::KeyReceiver externalKeyHandler;
     QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::onKeyPress, stackedWidget, [&app, &alsaWorker](int key) {
         if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
@@ -164,10 +180,6 @@ int main(int argc, char* argv[])
     QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::finished, stackedWidget, &QObject::deleteLater);
     externalKeyHandler.start();
 
-
-
-    autoapp::service::SteeringWheelControl swcWorker;
-    swcWorker.start();
 
 
 
@@ -205,10 +217,11 @@ int main(int argc, char* argv[])
 
     libusb_exit(usbContext);
 
-    externalKeyHandler.quit();
-    externalKeyHandler.wait();
     swcWorker.quit();
     swcWorker.wait();
+
+    externalKeyHandler.quit();
+    externalKeyHandler.wait();
 
 
     alsaWorker.quit();
