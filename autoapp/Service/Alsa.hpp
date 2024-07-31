@@ -15,6 +15,7 @@ class Alsa : public QThread
 
 
 public:
+    explicit Alsa(QObject *parent = nullptr);
     void adjustVolumeRelative(int);
     void toggleMute();
 

@@ -8,6 +8,14 @@ namespace autoapp
 namespace service
 {
 
+Alsa::Alsa(QObject *parent)
+    : QThread(parent),
+    mixerHandle_(nullptr),
+    mixerElement_(nullptr),
+    lastVolumePercent_(0)
+{
+}
+
 void Alsa::run()
 {
     static const char *selem_name = "Master";
