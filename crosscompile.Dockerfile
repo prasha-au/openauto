@@ -14,15 +14,8 @@ RUN export DEBIAN_FRONTEND=noninteractive
 RUN apt-get install -y cmake build-essential git
 
 
-# AASDK
+# AASDK depenedncies
 RUN apt-get install -y protobuf-compiler libprotobuf-dev libusb-1.0.0-dev libssl-dev libboost-dev libboost-system-dev libboost-log-dev
-RUN git clone --single-branch https://github.com/OpenDsh/aasdk
-RUN cd aasdk
-COPY patches/aasdk_openssl-fips-fix.patch /mnt/raspihf/aasdk/aasdk_openssl-fips-fix.patch
-RUN git apply aasdk_openssl-fips-fix.patch
-RUN cmake -DCMAKE_BUILD_TYPE=Release .
-RUN make -j8
-RUN make install
 
 
 # we need to add in some qt dependencies at this point for gstreamer
@@ -57,6 +50,3 @@ RUN git clone https://github.com/prasha-au/openauto.git
 RUN cmake -Bbuild
 RUN make -j8
 
-
-# On the target...
-# DISPLAY=:0 LD_LIBRARY_PATH=/home/dash/lib:$PATH ./autoappcross  --platform eglfs
