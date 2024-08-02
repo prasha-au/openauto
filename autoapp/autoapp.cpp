@@ -22,7 +22,6 @@
 #include "./Pages/HomePage.hpp"
 #include "./Pages/ProjectionPage.hpp"
 #include "./Service/OpenautoEventFilter.hpp"
-#include "./Service/KeyReceiver.hpp"
 #include "./Service/Alsa.hpp"
 #include "./Service/SteeringWheelControl.hpp"
 #include "OpenautoLog.hpp"
@@ -168,23 +167,6 @@ int main(int argc, char* argv[])
 
 
 
-
-    autoapp::service::KeyReceiver externalKeyHandler;
-    QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::onKeyPress, stackedWidget, [&app, &alsaWorker](int key) {
-        if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
-            alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -5 : 5);
-        } else if (key == Qt::Key_VolumeMute) {
-            alsaWorker.toggleMute();
-        } else {
-            app.postEvent(QApplication::focusWidget(), new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));
-        }
-    });
-    QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::finished, stackedWidget, &QObject::deleteLater);
-    externalKeyHandler.start();
-
-
-
-
     // ===================================== DEVELOPMENT TEST CONNECT
 
     QObject::connect(&homePage, &autoapp::pages::HomePage::testConnect, [&openautoApp, &tcpWrapper, &ioService]() {
@@ -221,10 +203,6 @@ int main(int argc, char* argv[])
 
     swcWorker.quit();
     swcWorker.wait();
-
-    externalKeyHandler.quit();
-    externalKeyHandler.wait();
-
 
     alsaWorker.quit();
     alsaWorker.wait();
