@@ -49,9 +49,6 @@ find_package(aasdk REQUIRED)
 find_package(Threads)
 
 include(${base_directory}/cmake_modules/gitversion.cmake)
-if(RPI_BUILD)
-    find_package(libomx)
-endif()
 
 find_package(GObject)
 find_package(Qt5GStreamer)
