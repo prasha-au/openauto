@@ -1,3 +1,5 @@
+### Logs from target Raspbian SD card
+
 ```bash
 dash@dash:~/openauto $ dpkg --print-architecture
 armhf
@@ -16,6 +18,7 @@ SUPPORT_URL="http://www.raspbian.org/RaspbianForums"
 BUG_REPORT_URL="http://www.raspbian.org/RaspbianBugs"
 ```
 
+### Handy Links
 
 https://logan.tw/posts/2017/01/21/introduction-to-qemu-debootstrap/
 https://raspberrypi.stackexchange.com/questions/78232/install-base-raspbian-from-repository-not-using-an-image

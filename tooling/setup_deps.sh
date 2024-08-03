@@ -3,7 +3,7 @@
 set -e
 
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y cmake build-essential git curl \
+apt-get install -y cmake build-essential git curl \
     protobuf-compiler libprotobuf-dev libusb-1.0.0-dev libssl-dev libboost-dev libboost-system-dev libboost-log-dev \
     qtbase5-dev qtdeclarative5-dev qtmultimedia5-dev qtconnectivity5-dev \
     libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev \
