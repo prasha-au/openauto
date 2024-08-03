@@ -13,10 +13,6 @@ if(CCACHE_PROGRAM)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
 set(base_directory ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -58,17 +54,6 @@ pkg_check_modules(GST REQUIRED
                   gstreamer-sdp-1.0>=1.4
                   gstreamer-video-1.0>=1.4
                   gstreamer-app-1.0>=1.4)
-if(RPI_BUILD)
-    add_definitions(-DRPI)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/functions.cmake)
-    findRpiRevision( RPI_REVISION )
-    math(EXPR RPI_MODEL "(0x${RPI_REVISION}>>4)&0xFF")
-    message( "-- Raspberry Pi Model: ${RPI_MODEL}" )
-    if(RPI_MODEL EQUAL 17)
-        message("Raspberry Pi 4 Found")
-        add_definitions(-DPI4)
-    endif(RPI_MODEL EQUAL 17)
-endif(RPI_BUILD)
 message(STATUS "${GST_LIBRARIES}")
 
 
