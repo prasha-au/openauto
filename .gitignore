@@ -25,3 +25,7 @@ _deps
 openauto*.ini
 run_*.log
 inject_keypress.fifo
+
+
+
+crossbuild/

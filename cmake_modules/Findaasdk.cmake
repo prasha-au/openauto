@@ -1,8 +1,6 @@
-# include(CPM)
 include(FetchContent)
 
-
-set(aasdk_patch git apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/aasdk_openssl-fips-fix.patch)
+set(aasdk_patch curl -L https://raw.githubusercontent.com/openDsh/dash/develop/patches/aasdk_openssl-fips-fix.patch | git apply -v)
 
 FetchContent_Declare(aasdk
         GIT_REPOSITORY https://github.com/OpenDsh/aasdk
