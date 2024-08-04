@@ -114,4 +114,3 @@ target_link_libraries(openauto PUBLIC
         btservice_proto
         ${Protobuf_LIBRARIES}
         )
-

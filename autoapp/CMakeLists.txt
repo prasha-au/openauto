@@ -24,4 +24,3 @@ target_link_libraries(autoapp
         openauto
         asound
         )
-
