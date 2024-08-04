@@ -23,11 +23,5 @@ target_include_directories(autoapp PRIVATE
 target_link_libraries(autoapp
         openauto
         asound
-        rt
         )
 
-set_target_properties(autoapp
-        PROPERTIES INSTALL_RPATH_USE_LINK_PATH 1)
-
-install(TARGETS autoapp
-        RUNTIME DESTINATION bin)
