@@ -15,6 +15,7 @@ class Alsa : public QThread
 
 
 public:
+    explicit Alsa(QObject *parent = nullptr);
     void adjustVolumeRelative(int);
     void toggleMute();
 
@@ -25,8 +26,8 @@ private:
         long max;
     };
 
-    snd_mixer_t *mixerHandle_;
-    snd_mixer_elem_t *mixerElement_;
+    snd_mixer_t *mixerHandle_ = nullptr;
+    snd_mixer_elem_t *mixerElement_ = nullptr;
     VolumeRange volumeRange_;
     int lastVolumePercent_;
     void run();
