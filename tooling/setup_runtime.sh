@@ -8,6 +8,3 @@ apt-get install -y libqt5multimedia5 libqt5multimedia5-plugins \
     gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa \
     pulseaudio alsa-utils
 
-
-# TODO: qt-gstreamer needs to be installed for runtime
-
