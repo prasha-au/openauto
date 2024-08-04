@@ -1,6 +1,9 @@
 {
 	"name": "Openauto Development",
-	"image": "openauto_dev",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
 	"customizations": {
 		"vscode": {
 			"extensions":[
