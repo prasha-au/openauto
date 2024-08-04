@@ -92,13 +92,6 @@ cd c:\pulse
 ```
 
 
-## Temp SWC Setup
-
-```bash
-sudo apt-get install python3
-pip install Adafruit_ADS1x15 --break-system-packages
-```
-
 ## Pulse Fix
 - Add the following to the `/etc/pulse/default.conf`. It may help....
 ```
@@ -139,6 +132,3 @@ pactl info # this should show (on PipeWire xxx) under Server Name
 ```
 
 
-
-## Volume control in app
-Added new keybindings to adjust volume using keypresses and a volume indicator that pops up when the volume changes.

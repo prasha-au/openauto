@@ -6,6 +6,7 @@
 #include <QStackedWidget>
 #include <QFile>
 #include <QThread>
+#include <QMetaType>
 #include "aasdk/USB/USBHub.hpp"
 #include "aasdk/USB/ConnectedAccessoriesEnumerator.hpp"
 #include "aasdk/USB/AccessoryModeQueryChain.hpp"
@@ -21,8 +22,8 @@
 #include "./Pages/HomePage.hpp"
 #include "./Pages/ProjectionPage.hpp"
 #include "./Service/OpenautoEventFilter.hpp"
-#include "./Service/KeyReceiver.hpp"
 #include "./Service/Alsa.hpp"
+#include "./Service/SteeringWheelControl.hpp"
 #include "OpenautoLog.hpp"
 
 using namespace openauto;
@@ -150,18 +151,20 @@ int main(int argc, char* argv[])
 
 
     // ===================================== KEYPRESS FORWARDER
-    autoapp::service::KeyReceiver externalKeyHandler;
-    QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::onKeyPress, stackedWidget, [&app, &alsaWorker](int key) {
+    qRegisterMetaType<Qt::Key>();
+
+    autoapp::service::SteeringWheelControl swcWorker;
+    swcWorker.start();
+    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, stackedWidget, [&app, &alsaWorker](Qt::Key key) {
         if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
-            alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -5 : 5);
+            alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -10 : 10);
         } else if (key == Qt::Key_VolumeMute) {
             alsaWorker.toggleMute();
         } else {
             app.postEvent(QApplication::focusWidget(), new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));
         }
     });
-    QObject::connect(&externalKeyHandler, &autoapp::service::KeyReceiver::finished, stackedWidget, &QObject::deleteLater);
-    externalKeyHandler.start();
+
 
 
     // ===================================== DEVELOPMENT TEST CONNECT
@@ -198,8 +201,8 @@ int main(int argc, char* argv[])
 
     libusb_exit(usbContext);
 
-    externalKeyHandler.quit();
-    externalKeyHandler.wait();
+    swcWorker.quit();
+    swcWorker.wait();
 
     alsaWorker.quit();
     alsaWorker.wait();
