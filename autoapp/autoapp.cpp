@@ -130,6 +130,7 @@ int main(int argc, char* argv[])
     auto connectedAccessoriesEnumerator(std::make_shared<aasdk::usb::ConnectedAccessoriesEnumerator>(usbWrapper, ioService, queryChainFactory));
     auto openautoApp = std::make_shared<openauto::App>(ioService, usbWrapper, tcpWrapper, androidAutoEntityFactory, std::move(usbHub), std::move(connectedAccessoriesEnumerator));
 
+    serviceFactory.startBluetoothAdvertising();
 
     autoapp::service::OpenautoEventFilter filter;
     app.installEventFilter(&filter);

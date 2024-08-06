@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package openauto.btservice.proto;
+package openauto.extraprotos;
 
 enum SecurityMode {
     UNKNOWN_SECURITY_MODE = 0;

@@ -7,6 +7,7 @@ set(CMAKE_AUTORCC ON)
 add_library(openauto SHARED
         App.cpp
         Service/BluetoothService.cpp
+        Service/BluetoothAdvertiseService.cpp
         Service/InputService.cpp
         Service/MediaAudioService.cpp
         Service/ServiceFactory.cpp
@@ -32,14 +33,6 @@ add_library(openauto SHARED
         Projection/QtVideoOutput.cpp
         Projection/QtAudioInput.cpp
         Projection/QtAudioOutput.cpp
-        ${CMAKE_SOURCE_DIR}/btservice/AndroidBluetoothServer.cpp
-        ${CMAKE_SOURCE_DIR}/btservice/AndroidBluetoothServer.cpp
-        ${CMAKE_SOURCE_DIR}/btservice/AndroidBluetoothService.cpp
-        ${CMAKE_SOURCE_DIR}/btservice/btservice.cpp
-        ${CMAKE_SOURCE_DIR}/include/btservice/AndroidBluetoothServer.hpp
-        ${CMAKE_SOURCE_DIR}/include/btservice/AndroidBluetoothService.hpp
-        ${CMAKE_SOURCE_DIR}/include/btservice/IAndroidBluetoothServer.hpp
-        ${CMAKE_SOURCE_DIR}/include/btservice/IAndroidBluetoothService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/App.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/Configuration.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/RecentAddressesList.hpp
@@ -62,6 +55,7 @@ add_library(openauto SHARED
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/AudioService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/IServiceFactory.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/BluetoothService.hpp
+        ${CMAKE_SOURCE_DIR}/include/openauto/Service/BluetoothAdvertiseService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/AndroidAutoEntity.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/ServiceFactory.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/SpeechAudioService.hpp
@@ -111,6 +105,6 @@ target_link_libraries(openauto PUBLIC
         aasdk
         Qt5::Bluetooth
         Qt5::MultimediaWidgets
-        btservice_proto
+        extra_protos
         ${Protobuf_LIBRARIES}
         )

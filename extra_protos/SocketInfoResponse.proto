@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package openauto.btservice.proto;
+package openauto.extraprotos;
 
 enum Status {
     STATUS_UNSOLICITED_MESSAGE = 1;

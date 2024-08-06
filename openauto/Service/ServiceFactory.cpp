@@ -39,6 +39,7 @@
 #include "openauto/Projection/RemoteBluetoothDevice.hpp"
 #include "openauto/Projection/DummyBluetoothDevice.hpp"
 #include "openauto/Service/IAndroidAutoInterface.hpp"
+#include "OpenautoLog.hpp"
 
 
 namespace openauto
@@ -51,7 +52,7 @@ ServiceFactory::ServiceFactory(boost::asio::io_service& ioService, configuration
     , activeArea_(activeArea)
     , screenGeometry_(this->mapActiveAreaToGlobal(activeArea_))
     , qtVideoOutput_((QGst::init(nullptr, nullptr), std::make_shared<projection::QtVideoOutput>(configuration_, activeArea_)))
-    , btservice_(configuration_)
+    , bluetoothAdveriseService_(std::make_shared<BluetoothAdvertiseService>(configuration_))
     , nightMode_(nightMode)
 {
     OPENAUTO_LOG(info) << "SERVICE FACTORY INITED";
@@ -218,6 +219,7 @@ void ServiceFactory::sendKeyEvent(QKeyEvent* event)
     }
 }
 
+
 QRect ServiceFactory::mapActiveAreaToGlobal(QWidget* activeArea)
 {
     if(activeArea == nullptr)
@@ -231,6 +233,12 @@ QRect ServiceFactory::mapActiveAreaToGlobal(QWidget* activeArea)
 
     return QRect(p.x(), p.y(), g.width(), g.height());
 }
+
+void ServiceFactory::startBluetoothAdvertising()
+{
+    bluetoothAdveriseService_->startAdvertising();
+}
+
 
 }
 }
