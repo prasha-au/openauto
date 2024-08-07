@@ -36,8 +36,6 @@
 #include "openauto/Projection/QtAudioInput.hpp"
 #include "openauto/Projection/InputDevice.hpp"
 #include "openauto/Projection/LocalBluetoothDevice.hpp"
-#include "openauto/Projection/RemoteBluetoothDevice.hpp"
-#include "openauto/Projection/DummyBluetoothDevice.hpp"
 #include "openauto/Service/IAndroidAutoInterface.hpp"
 #include "OpenautoLog.hpp"
 
@@ -95,22 +93,8 @@ IService::Pointer ServiceFactory::createVideoService(aasdk::messenger::IMessenge
 
 IService::Pointer ServiceFactory::createBluetoothService(aasdk::messenger::IMessenger::Pointer messenger)
 {
-    projection::IBluetoothDevice::Pointer bluetoothDevice;
-    switch(configuration_->getBluetoothAdapterType())
-    {
-    case configuration::BluetoothAdapterType::LOCAL:
-        bluetoothDevice = projection::IBluetoothDevice::Pointer(new projection::LocalBluetoothDevice(), std::bind(&QObject::deleteLater, std::placeholders::_1));
-        break;
-
-    case configuration::BluetoothAdapterType::REMOTE:
-        bluetoothDevice = std::make_shared<projection::RemoteBluetoothDevice>(configuration_->getBluetoothRemoteAdapterAddress());
-        break;
-
-    default:
-        bluetoothDevice = std::make_shared<projection::DummyBluetoothDevice>();
-        break;
-    }
-
+    OPENAUTO_LOG(info) << "Creating bluetooth device.";
+    projection::IBluetoothDevice::Pointer bluetoothDevice = projection::IBluetoothDevice::Pointer(new projection::LocalBluetoothDevice(), std::bind(&QObject::deleteLater, std::placeholders::_1));
     return std::make_shared<BluetoothService>(ioService_, messenger, std::move(bluetoothDevice));
 }
 

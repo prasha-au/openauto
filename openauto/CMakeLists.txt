@@ -25,11 +25,9 @@ add_library(openauto SHARED
         Service/AppEvent.cpp
         Configuration/RecentAddressesList.cpp
         Configuration/Configuration.cpp
-        Projection/RemoteBluetoothDevice.cpp
         Projection/LocalBluetoothDevice.cpp
         Projection/VideoOutput.cpp
         Projection/InputDevice.cpp
-        Projection/DummyBluetoothDevice.cpp
         Projection/QtVideoOutput.cpp
         Projection/QtAudioInput.cpp
         Projection/QtAudioOutput.cpp
@@ -72,11 +70,9 @@ add_library(openauto SHARED
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/VideoOutput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IBluetoothDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IAudioInput.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Projection/DummyBluetoothDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/IInputDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/InputDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/QtAudioOutput.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Projection/RemoteBluetoothDevice.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/QtVideoOutput.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Projection/InputEvent.hpp
         )
