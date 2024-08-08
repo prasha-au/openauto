@@ -36,9 +36,8 @@
 #include "openauto/Projection/QtAudioInput.hpp"
 #include "openauto/Projection/InputDevice.hpp"
 #include "openauto/Projection/LocalBluetoothDevice.hpp"
-#include "openauto/Projection/RemoteBluetoothDevice.hpp"
-#include "openauto/Projection/DummyBluetoothDevice.hpp"
 #include "openauto/Service/IAndroidAutoInterface.hpp"
+#include "OpenautoLog.hpp"
 
 
 namespace openauto
@@ -51,7 +50,7 @@ ServiceFactory::ServiceFactory(boost::asio::io_service& ioService, configuration
     , activeArea_(activeArea)
     , screenGeometry_(this->mapActiveAreaToGlobal(activeArea_))
     , qtVideoOutput_((QGst::init(nullptr, nullptr), std::make_shared<projection::QtVideoOutput>(configuration_, activeArea_)))
-    , btservice_(configuration_)
+    , bluetoothAdveriseService_(std::make_shared<BluetoothAdvertiseService>(configuration_))
     , nightMode_(nightMode)
 {
     OPENAUTO_LOG(info) << "SERVICE FACTORY INITED";
@@ -94,22 +93,8 @@ IService::Pointer ServiceFactory::createVideoService(aasdk::messenger::IMessenge
 
 IService::Pointer ServiceFactory::createBluetoothService(aasdk::messenger::IMessenger::Pointer messenger)
 {
-    projection::IBluetoothDevice::Pointer bluetoothDevice;
-    switch(configuration_->getBluetoothAdapterType())
-    {
-    case configuration::BluetoothAdapterType::LOCAL:
-        bluetoothDevice = projection::IBluetoothDevice::Pointer(new projection::LocalBluetoothDevice(), std::bind(&QObject::deleteLater, std::placeholders::_1));
-        break;
-
-    case configuration::BluetoothAdapterType::REMOTE:
-        bluetoothDevice = std::make_shared<projection::RemoteBluetoothDevice>(configuration_->getBluetoothRemoteAdapterAddress());
-        break;
-
-    default:
-        bluetoothDevice = std::make_shared<projection::DummyBluetoothDevice>();
-        break;
-    }
-
+    OPENAUTO_LOG(info) << "Creating bluetooth device.";
+    projection::IBluetoothDevice::Pointer bluetoothDevice = projection::IBluetoothDevice::Pointer(new projection::LocalBluetoothDevice(), std::bind(&QObject::deleteLater, std::placeholders::_1));
     return std::make_shared<BluetoothService>(ioService_, messenger, std::move(bluetoothDevice));
 }
 
@@ -218,6 +203,7 @@ void ServiceFactory::sendKeyEvent(QKeyEvent* event)
     }
 }
 
+
 QRect ServiceFactory::mapActiveAreaToGlobal(QWidget* activeArea)
 {
     if(activeArea == nullptr)
@@ -231,6 +217,17 @@ QRect ServiceFactory::mapActiveAreaToGlobal(QWidget* activeArea)
 
     return QRect(p.x(), p.y(), g.width(), g.height());
 }
+
+void ServiceFactory::startBluetoothAdvertising()
+{
+    bluetoothAdveriseService_->startAdvertising();
+}
+
+void ServiceFactory::connectToLastBluetoothDevice()
+{
+    bluetoothAdveriseService_->connectToLastPairedDevice();
+}
+
 
 }
 }

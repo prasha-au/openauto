@@ -55,10 +55,10 @@ pkg_check_modules(GST REQUIRED
 message(STATUS "${GST_LIBRARIES}")
 
 
-add_subdirectory(btservice_proto)
-set(BTSERVICE_PROTO_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${BTSERVICE_PROTO_INCLUDE_DIRS})
+add_subdirectory(extra_protos)
+set(EXTRA_PROTOS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${EXTRA_PROTOS_INCLUDE_DIR})
 
 add_subdirectory(openauto)
 add_subdirectory(autoapp)
-add_dependencies(autoapp btservice_proto)
+add_dependencies(autoapp extra_protos)

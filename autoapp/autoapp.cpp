@@ -130,6 +130,7 @@ int main(int argc, char* argv[])
     auto connectedAccessoriesEnumerator(std::make_shared<aasdk::usb::ConnectedAccessoriesEnumerator>(usbWrapper, ioService, queryChainFactory));
     auto openautoApp = std::make_shared<openauto::App>(ioService, usbWrapper, tcpWrapper, androidAutoEntityFactory, std::move(usbHub), std::move(connectedAccessoriesEnumerator));
 
+    serviceFactory.startBluetoothAdvertising();
 
     autoapp::service::OpenautoEventFilter filter;
     app.installEventFilter(&filter);
@@ -166,29 +167,29 @@ int main(int argc, char* argv[])
     });
 
 
-
     // ===================================== DEVELOPMENT TEST CONNECT
 
     QObject::connect(&homePage, &autoapp::pages::HomePage::testConnect, [&openautoApp, &tcpWrapper, &ioService]() {
         OPENAUTO_LOG(info) << "Test connection";
         aasdk::tcp::ITCPEndpoint::SocketPointer socket = std::make_shared<boost::asio::ip::tcp::socket>(ioService);
-        try
-        {
-            auto ec = tcpWrapper.connect(*socket, "192.168.1.8", 5277);
-            if (!ec) {
-                OPENAUTO_LOG(info) << "TCP CONNECTION MADE";
+        try {
+            if (!tcpWrapper.connect(*socket, "192.168.1.8", 5277)) {
                 openautoApp->start(std::move(socket));
-
             } else {
-                OPENAUTO_LOG(info) << "TCP CONNECTION FAILED";
+                OPENAUTO_LOG(info) << "TCP connection failed";
             }
-        }
-        catch(const boost::system::system_error& se)
-        {
+        } catch (const boost::system::system_error& se) {
             OPENAUTO_LOG(error) << "Failed to open socket";
         }
     });
 
+    QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&serviceFactory]() {
+        serviceFactory.connectToLastBluetoothDevice();
+    });
+    QTimer::singleShot(100, &app, [&serviceFactory]() {
+        OPENAUTO_LOG(info) << "Triggering bluetooth connect";
+        serviceFactory.connectToLastBluetoothDevice();
+    });
 
     openautoApp->waitForDevice(true);
 

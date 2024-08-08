@@ -22,11 +22,11 @@
 #include "openauto/Configuration/IConfiguration.hpp"
 #include "openauto/Projection/InputDevice.hpp"
 #include "openauto/Projection/QtVideoOutput.hpp"
+#include "openauto/Service/BluetoothAdvertiseService.hpp"
 #include "openauto/Service/MediaStatusService.hpp"
 #include "openauto/Service/NavigationStatusService.hpp"
 #include "openauto/Service/SensorService.hpp"
 #include "openauto/Service/InputService.hpp"
-#include "btservice/btservice.hpp"
 
 namespace openauto
 {
@@ -44,6 +44,8 @@ public:
     void sendKeyEvent(QKeyEvent* event);
     void setAndroidAutoInterface(IAndroidAutoInterface* aa_interface);
     static QRect mapActiveAreaToGlobal(QWidget* activeArea);
+    void startBluetoothAdvertising();
+    void connectToLastBluetoothDevice();
 
 private:
     IService::Pointer createVideoService(aasdk::messenger::IMessenger::Pointer messenger);
@@ -60,7 +62,7 @@ private:
     std::function<void(bool)> activeCallback_;
     std::shared_ptr<projection::InputDevice> inputDevice_;
     std::shared_ptr<projection::QtVideoOutput> qtVideoOutput_;
-    btservice::btservice btservice_;
+    std::shared_ptr<BluetoothAdvertiseService> bluetoothAdveriseService_;
     bool nightMode_;
     std::weak_ptr<SensorService> sensorService_;
     std::weak_ptr<InputService> inputService_;
