@@ -30,7 +30,6 @@
 #include "openauto/Service/SensorService.hpp"
 #include "openauto/Service/BluetoothService.hpp"
 #include "openauto/Service/InputService.hpp"
-#include "openauto/Service/NavigationStatusService.hpp"
 #include "openauto/Projection/QtVideoOutput.hpp"
 #include "openauto/Projection/QtAudioOutput.hpp"
 #include "openauto/Projection/QtAudioInput.hpp"
@@ -71,12 +70,6 @@ ServiceList ServiceFactory::create(aasdk::messenger::IMessenger::Pointer messeng
 
     serviceList.emplace_back(this->createVideoService(messenger));
     serviceList.emplace_back(this->createBluetoothService(messenger));
-    std::shared_ptr<NavigationStatusService> navStatusService = this->createNavigationStatusService(messenger);
-    navStatusService_ = navStatusService;
-    serviceList.emplace_back(navStatusService);
-    std::shared_ptr<MediaStatusService> mediaStatusService = this->createMediaStatusService(messenger);
-    mediaStatusService_ = mediaStatusService;
-    serviceList.emplace_back(mediaStatusService);
 
     std::shared_ptr<InputService> inputService = this->createInputService(messenger);
     inputService_ = inputService;
@@ -98,15 +91,6 @@ IService::Pointer ServiceFactory::createBluetoothService(aasdk::messenger::IMess
     return std::make_shared<BluetoothService>(ioService_, messenger, std::move(bluetoothDevice));
 }
 
-std::shared_ptr<NavigationStatusService> ServiceFactory::createNavigationStatusService(aasdk::messenger::IMessenger::Pointer messenger)
-{
-    return std::make_shared<NavigationStatusService>(ioService_, messenger, aa_interface_);
-}
-
-std::shared_ptr<MediaStatusService> ServiceFactory::createMediaStatusService(aasdk::messenger::IMessenger::Pointer messenger)
-{
-    return std::make_shared<MediaStatusService>(ioService_, messenger, aa_interface_);
-}
 
 std::shared_ptr<InputService> ServiceFactory::createInputService(aasdk::messenger::IMessenger::Pointer messenger)
 {
@@ -165,16 +149,6 @@ void ServiceFactory::setOpacity(unsigned int alpha)
 void ServiceFactory::setAndroidAutoInterface(IAndroidAutoInterface* aa_interface){
     if(aa_interface==NULL) return;
     this->aa_interface_ = aa_interface;
-
-    if(std::shared_ptr<MediaStatusService> mediaStatusService = mediaStatusService_.lock())
-    {
-        mediaStatusService->setAndroidAutoInterface(aa_interface);
-    }
-    if(std::shared_ptr<NavigationStatusService> navStatusService = navStatusService_.lock())
-    {
-        navStatusService->setAndroidAutoInterface(aa_interface);
-    }
-
 }
 
 void ServiceFactory::setNightMode(bool nightMode)

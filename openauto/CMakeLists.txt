@@ -20,8 +20,6 @@ add_library(openauto SHARED
         Service/Pinger.cpp
         Service/AndroidAutoEntity.cpp
         Service/VideoService.cpp
-        Service/NavigationStatusService.cpp
-        Service/MediaStatusService.cpp
         Service/AppEvent.cpp
         Configuration/RecentAddressesList.cpp
         Configuration/Configuration.cpp
@@ -39,8 +37,6 @@ add_library(openauto SHARED
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/IRecentAddressesList.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/HandednessOfTrafficType.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/BluetootAdapterType.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Service/NavigationStatusService.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Service/MediaStatusService.hpp
 	${CMAKE_SOURCE_DIR}/include/openauto/Service/MediaAudioService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/SensorService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/IPinger.hpp
