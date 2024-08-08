@@ -167,37 +167,35 @@ int main(int argc, char* argv[])
     });
 
 
-
     // ===================================== DEVELOPMENT TEST CONNECT
 
     QObject::connect(&homePage, &autoapp::pages::HomePage::testConnect, [&openautoApp, &tcpWrapper, &ioService]() {
         OPENAUTO_LOG(info) << "Test connection";
         aasdk::tcp::ITCPEndpoint::SocketPointer socket = std::make_shared<boost::asio::ip::tcp::socket>(ioService);
-        try
-        {
-            auto ec = tcpWrapper.connect(*socket, "192.168.1.8", 5277);
-            if (!ec) {
-                OPENAUTO_LOG(info) << "TCP CONNECTION MADE";
+        try {
+            if (!tcpWrapper.connect(*socket, "192.168.1.8", 5277)) {
                 openautoApp->start(std::move(socket));
-
             } else {
-                OPENAUTO_LOG(info) << "TCP CONNECTION FAILED";
+                OPENAUTO_LOG(info) << "TCP connection failed";
             }
-        }
-        catch(const boost::system::system_error& se)
-        {
+        } catch (const boost::system::system_error& se) {
             OPENAUTO_LOG(error) << "Failed to open socket";
         }
     });
 
+    QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&serviceFactory]() {
+        serviceFactory.connectToLastBluetoothDevice();
+    });
+    QTimer::singleShot(100, &app, [&serviceFactory]() {
+        OPENAUTO_LOG(info) << "Triggering bluetooth connect";
+        serviceFactory.connectToLastBluetoothDevice();
+    });
 
     openautoApp->waitForDevice(true);
 
     window.show();
     window.activateWindow();
     splash.finish(&window);
-
-    serviceFactory.connectToLastBluetoothDevice();
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));

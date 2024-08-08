@@ -149,7 +149,7 @@ color: rgb(238, 238, 236);</string>
           </size>
          </property>
          <property name="text">
-          <string>Bluetooth</string>
+          <string>Connect Bluetooth</string>
          </property>
         </widget>
        </item>

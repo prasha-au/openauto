@@ -25,6 +25,7 @@ public:
 
 signals:
     void testConnect();
+    void bluetoothConnect();
     void exit();
 
 private:

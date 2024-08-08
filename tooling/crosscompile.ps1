@@ -11,12 +11,14 @@ if (Test-Path $resultingBinaryPath) {
 $compileCmd=@'
 set -e
 cd /openauto
-cmake -B{0}
+if [ ! -d {0} ]; then
+  cmake -B{0}
+fi
 cmake --build {0} -j
 '@ -f $buildFolder
 
 
-docker run -l openauto-crosscompile -i --rm -v ${PWD}:/openauto openauto-crosscompile /bin/bash -c $compilecmd
+docker run -l openauto-crosscompile -it --rm -v ${PWD}:/openauto openauto-crosscompile /bin/bash -c $compilecmd
 
 if (!(Test-Path $resultingBinaryPath)) {
   Write-Error "Build failed."

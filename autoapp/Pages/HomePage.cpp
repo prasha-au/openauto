@@ -13,6 +13,7 @@ HomePage::HomePage(QWidget *parent)
 {
   ui_->setupUi(this);
   connect(ui_->pushButtonTestConnect, &QPushButton::clicked, this, &HomePage::testConnect);
+  connect(ui_->pushButtonBluetooth, &QPushButton::clicked, this, &HomePage::bluetoothConnect);
   connect(ui_->pushButtonExit, &QPushButton::clicked, this, &HomePage::exit);
 }
 
