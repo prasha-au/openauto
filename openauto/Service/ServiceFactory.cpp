@@ -223,6 +223,11 @@ void ServiceFactory::startBluetoothAdvertising()
     bluetoothAdveriseService_->startAdvertising();
 }
 
+void ServiceFactory::connectToLastBluetoothDevice()
+{
+    bluetoothAdveriseService_->connectToLastPairedDevice();
+}
+
 
 }
 }

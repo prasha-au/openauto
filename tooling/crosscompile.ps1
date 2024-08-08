@@ -20,6 +20,7 @@ docker run -l openauto-crosscompile -i --rm -v ${PWD}:/openauto openauto-crossco
 
 if (!(Test-Path $resultingBinaryPath)) {
   Write-Error "Build failed."
+  exit
 }
 
 scp -r ${buildFolder}/assets/* ${sshTarget}

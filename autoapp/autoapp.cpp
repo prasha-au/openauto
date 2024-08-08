@@ -197,6 +197,8 @@ int main(int argc, char* argv[])
     window.activateWindow();
     splash.finish(&window);
 
+    serviceFactory.connectToLastBluetoothDevice();
+
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));
 

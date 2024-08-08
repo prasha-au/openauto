@@ -45,6 +45,7 @@ public:
     void setAndroidAutoInterface(IAndroidAutoInterface* aa_interface);
     static QRect mapActiveAreaToGlobal(QWidget* activeArea);
     void startBluetoothAdvertising();
+    void connectToLastBluetoothDevice();
 
 private:
     IService::Pointer createVideoService(aasdk::messenger::IMessenger::Pointer messenger);
