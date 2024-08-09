@@ -61,7 +61,8 @@ bool QtAudioOutput::open()
 
 void QtAudioOutput::write(aasdk::messenger::Timestamp::ValueType, const aasdk::common::DataConstBuffer& buffer)
 {
-    if (audioBuffer_ != nullptr)
+    auto outputState = audioOutput_->state();
+    if (outputState != QAudio::StoppedState && outputState != QAudio::SuspendedState)
     {
         audioBuffer_->write(reinterpret_cast<const char*>(buffer.cdata), buffer.size);
     }

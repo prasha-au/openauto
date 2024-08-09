@@ -10,7 +10,7 @@ namespace openauto
 namespace service
 {
 
-BluetoothAdvertiseService::BluetoothAdvertiseService(configuration::IConfiguration::Pointer config)
+BluetoothAdvertiseService::BluetoothAdvertiseService(configuration::Configuration::Pointer config)
     : server_(std::make_unique<QBluetoothServer>(QBluetoothServiceInfo::RfcommProtocol, this))
     , socket_(nullptr)
     , config_(std::move(config))
@@ -202,16 +202,8 @@ void BluetoothAdvertiseService::writeNetworkInfoMessage()
     networkMessage.set_psk(config_->getWifiPassword());
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] PSKEY: "<<config_->getWifiPassword();
 
-    if(config_->getWifiMAC().empty())
-    {
-        networkMessage.set_mac_addr(QNetworkInterface::interfaceFromName("wlan0").hardwareAddress().toStdString());
-        OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] MAC: "<<QNetworkInterface::interfaceFromName("wlan0").hardwareAddress().toStdString();
-    }
-    else
-    {
-        networkMessage.set_mac_addr(config_->getWifiMAC());
-        OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] MAC: "<< config_->getWifiMAC();
-    }
+    networkMessage.set_mac_addr(QNetworkInterface::interfaceFromName("wlan0").hardwareAddress().toStdString());
+    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] MAC: "<<QNetworkInterface::interfaceFromName("wlan0").hardwareAddress().toStdString();
 
     networkMessage.set_security_mode(extraprotos::SecurityMode::WPA2_PERSONAL);
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] Security: "<< extraprotos::SecurityMode::WPA2_PERSONAL;

@@ -60,13 +60,6 @@ void InputService::fillFeatures(aasdk::proto::messages::ServiceDiscoveryResponse
 
     auto* inputChannel = channelDescriptor->mutable_input_channel();
 
-    const auto& supportedButtonCodes = inputDevice_->getSupportedButtonCodes();
-
-    for(const auto& buttonCode : supportedButtonCodes)
-    {
-        inputChannel->add_supported_keycodes(buttonCode);
-    }
-
     if(inputDevice_->hasTouchscreen())
     {
         const auto& touchscreenSurface = inputDevice_->getTouchscreenGeometry();
@@ -98,19 +91,6 @@ void InputService::onBindingRequest(const aasdk::proto::messages::BindingRequest
     OPENAUTO_LOG(info) << "[InputService] binding request, scan codes count: " << request.scan_codes_size();
 
     aasdk::proto::enums::Status::Enum status = aasdk::proto::enums::Status::OK;
-    const auto& supportedButtonCodes = inputDevice_->getSupportedButtonCodes();
-
-    for(int i = 0; i < request.scan_codes_size(); ++i)
-    {
-        if(std::find(supportedButtonCodes.begin(), supportedButtonCodes.end(), request.scan_codes(i)) == supportedButtonCodes.end())
-        {
-            OPENAUTO_LOG(error) << "[InputService] binding request, scan code: " << request.scan_codes(i)
-                                << " is not supported.";
-
-            status = aasdk::proto::enums::Status::FAIL;
-            break;
-        }
-    }
 
     aasdk::proto::messages::BindingResponse response;
     response.set_status(status);
@@ -164,7 +144,7 @@ void InputService::onButtonEvent(const projection::ButtonEvent& event)
 }
 
 void InputService::sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode, projection::WheelDirection wheelDirection, projection::ButtonEventType buttonEventType)
-{    
+{
     OPENAUTO_LOG(info) << "[InputService] injecting button press";
     if(buttonCode == aasdk::proto::enums::ButtonCode::SCROLL_WHEEL)
     {

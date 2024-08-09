@@ -31,7 +31,7 @@ namespace openauto
 namespace projection
 {
 
-QtVideoOutput::QtVideoOutput(configuration::IConfiguration::Pointer configuration, QWidget* videoContainer)
+QtVideoOutput::QtVideoOutput(configuration::Configuration::Pointer configuration, QWidget* videoContainer)
     : VideoOutput(std::move(configuration))
     , videoContainer_(videoContainer)
 {

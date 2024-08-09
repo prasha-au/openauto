@@ -33,12 +33,10 @@ class IInputDevice
 {
 public:
     typedef std::shared_ptr<IInputDevice> Pointer;
-    typedef std::vector<aasdk::proto::enums::ButtonCode::Enum> ButtonCodes;
 
     virtual ~IInputDevice() = default;
     virtual void start(IInputDeviceEventHandler& eventHandler) = 0;
     virtual void stop() = 0;
-    virtual ButtonCodes getSupportedButtonCodes() const = 0;
     virtual bool hasTouchscreen() const = 0;
     virtual QRect getTouchscreenGeometry() const = 0;
 };

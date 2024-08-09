@@ -21,7 +21,7 @@
 #include <QObject>
 #include <QKeyEvent>
 #include "IInputDevice.hpp"
-#include "openauto/Configuration/IConfiguration.hpp"
+#include "openauto/Configuration/Configuration.hpp"
 #include <bits/stdc++.h>
 
 namespace openauto
@@ -34,11 +34,10 @@ class InputDevice: public QObject, public IInputDevice, boost::noncopyable
     Q_OBJECT
 
 public:
-    InputDevice(QObject& parent, configuration::IConfiguration::Pointer configuration, const QRect& touchscreenGeometry, const QRect& videoGeometry);
+    InputDevice(QObject& parent, configuration::Configuration::Pointer configuration, const QRect& touchscreenGeometry, const QRect& videoGeometry);
 
     void start(IInputDeviceEventHandler& eventHandler) override;
     void stop() override;
-    ButtonCodes getSupportedButtonCodes() const override;
     bool eventFilter(QObject* obj, QEvent* event) override;
     bool hasTouchscreen() const override;
     QRect getTouchscreenGeometry() const override;
@@ -52,7 +51,7 @@ private:
     bool handleMouseEvent(QEvent* event);
 
     QObject& parent_;
-    configuration::IConfiguration::Pointer configuration_;
+    configuration::Configuration::Pointer configuration_;
     QRect touchscreenGeometry_;
     QRect displayGeometry_;
     IInputDeviceEventHandler* eventHandler_;

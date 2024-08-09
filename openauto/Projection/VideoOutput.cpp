@@ -23,7 +23,7 @@ namespace openauto
 namespace projection
 {
 
-VideoOutput::VideoOutput(configuration::IConfiguration::Pointer configuration)
+VideoOutput::VideoOutput(configuration::Configuration::Pointer configuration)
     : configuration_(std::move(configuration))
 {
 

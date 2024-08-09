@@ -19,12 +19,10 @@
 #pragma once
 
 #include "openauto/Service/IServiceFactory.hpp"
-#include "openauto/Configuration/IConfiguration.hpp"
+#include "openauto/Configuration/Configuration.hpp"
 #include "openauto/Projection/InputDevice.hpp"
 #include "openauto/Projection/QtVideoOutput.hpp"
 #include "openauto/Service/BluetoothAdvertiseService.hpp"
-#include "openauto/Service/MediaStatusService.hpp"
-#include "openauto/Service/NavigationStatusService.hpp"
 #include "openauto/Service/SensorService.hpp"
 #include "openauto/Service/InputService.hpp"
 
@@ -36,9 +34,8 @@ class IAndroidAutoInterface;
 class ServiceFactory : public IServiceFactory
 {
 public:
-    ServiceFactory(boost::asio::io_service& ioService, configuration::IConfiguration::Pointer configuration, QWidget* activeArea=nullptr, bool nightMode=false);
+    ServiceFactory(boost::asio::io_service& ioService, configuration::Configuration::Pointer configuration, QWidget* activeArea=nullptr, bool nightMode=false);
     ServiceList create(aasdk::messenger::IMessenger::Pointer messenger) override;
-    void setOpacity(unsigned int alpha);
     void setNightMode(bool nightMode);
     void sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode, projection::WheelDirection wheelDirection = projection::WheelDirection::NONE, projection::ButtonEventType buttonEventType = projection::ButtonEventType::NONE);
     void sendKeyEvent(QKeyEvent* event);
@@ -50,13 +47,11 @@ public:
 private:
     IService::Pointer createVideoService(aasdk::messenger::IMessenger::Pointer messenger);
     IService::Pointer createBluetoothService(aasdk::messenger::IMessenger::Pointer messenger);
-    std::shared_ptr<NavigationStatusService> createNavigationStatusService(aasdk::messenger::IMessenger::Pointer messenger);
-    std::shared_ptr<MediaStatusService> createMediaStatusService(aasdk::messenger::IMessenger::Pointer messenger);
     std::shared_ptr<InputService> createInputService(aasdk::messenger::IMessenger::Pointer messenger);
     void createAudioServices(ServiceList& serviceList, aasdk::messenger::IMessenger::Pointer messenger);
 
     boost::asio::io_service& ioService_;
-    configuration::IConfiguration::Pointer configuration_;
+    configuration::Configuration::Pointer configuration_;
     QWidget* activeArea_;
     QRect screenGeometry_;
     std::function<void(bool)> activeCallback_;
@@ -66,8 +61,6 @@ private:
     bool nightMode_;
     std::weak_ptr<SensorService> sensorService_;
     std::weak_ptr<InputService> inputService_;
-    std::weak_ptr<MediaStatusService> mediaStatusService_;
-    std::weak_ptr<NavigationStatusService> navStatusService_;
     IAndroidAutoInterface* aa_interface_ = nullptr;
 };
 

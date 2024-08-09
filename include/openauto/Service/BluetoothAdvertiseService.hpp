@@ -5,7 +5,7 @@
 #include "openauto/Projection/IBluetoothDevice.hpp"
 #include <QBluetoothServer>
 #include "IService.hpp"
-#include "openauto/Configuration/IConfiguration.hpp"
+#include "openauto/Configuration/Configuration.hpp"
 #include <extra_protos/NetworkInfo.pb.h>
 #include <extra_protos/SocketInfoRequest.pb.h>
 #include <extra_protos/SocketInfoResponse.pb.h>
@@ -20,7 +20,7 @@ class BluetoothAdvertiseService: public QObject
     Q_OBJECT
 
 public:
-    BluetoothAdvertiseService(configuration::IConfiguration::Pointer configuration);
+    BluetoothAdvertiseService(configuration::Configuration::Pointer configuration);
     void startAdvertising();
     void connectToLastPairedDevice();
 
@@ -37,7 +37,7 @@ private:
 
     std::unique_ptr<QBluetoothServer> server_;
     QBluetoothSocket* socket_;
-    configuration::IConfiguration::Pointer config_;
+    configuration::Configuration::Pointer config_;
 
     void handleUnknownMessage(int messageType, QByteArray data);
     void handleSocketInfoRequest(QByteArray data);
