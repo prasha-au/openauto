@@ -14,7 +14,6 @@
 #include "aasdk/USB/AccessoryModeQueryFactory.hpp"
 #include "aasdk/TCP/TCPWrapper.hpp"
 #include "openauto/App.hpp"
-#include "openauto/Configuration/IConfiguration.hpp"
 #include "openauto/Service/AndroidAutoEntityFactory.hpp"
 #include "openauto/Service/ServiceFactory.hpp"
 #include "openauto/Configuration/Configuration.hpp"

@@ -97,7 +97,7 @@ class QtVideoOutput: public QObject, public VideoOutput, boost::noncopyable
     Q_OBJECT
 
 public:
-    QtVideoOutput(configuration::IConfiguration::Pointer configuration, QWidget* videoContainer=nullptr);
+    QtVideoOutput(configuration::Configuration::Pointer configuration, QWidget* videoContainer=nullptr);
     ~QtVideoOutput();
     bool open() override;
     bool init() override;

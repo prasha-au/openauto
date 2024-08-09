@@ -23,7 +23,7 @@
 #include "aasdk/Channel/Control/IControlServiceChannel.hpp"
 #include "aasdk/Channel/Control/IControlServiceChannelEventHandler.hpp"
 #include "aasdk/Channel/AV/VideoServiceChannel.hpp"
-#include "openauto/Configuration/IConfiguration.hpp"
+#include "openauto/Configuration/Configuration.hpp"
 #include "IAndroidAutoEntity.hpp"
 #include "IService.hpp"
 #include "IPinger.hpp"
@@ -40,7 +40,7 @@ public:
                       aasdk::messenger::ICryptor::Pointer cryptor,
                       aasdk::transport::ITransport::Pointer transport,
                       aasdk::messenger::IMessenger::Pointer messenger,
-                      configuration::IConfiguration::Pointer configuration,
+                      configuration::Configuration::Pointer configuration,
                       ServiceList serviceList,
                       IPinger::Pointer pinger);
     ~AndroidAutoEntity() override;
@@ -70,7 +70,7 @@ private:
     aasdk::transport::ITransport::Pointer transport_;
     aasdk::messenger::IMessenger::Pointer messenger_;
     aasdk::channel::control::IControlServiceChannel::Pointer controlServiceChannel_;
-    configuration::IConfiguration::Pointer configuration_;
+    configuration::Configuration::Pointer configuration_;
     ServiceList serviceList_;
     IPinger::Pointer pinger_;
     IAndroidAutoEntityEventHandler* eventHandler_;

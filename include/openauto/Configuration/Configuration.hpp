@@ -18,68 +18,79 @@
 
 #pragma once
 
+#include <string>
+#include <QRect>
+#include "aasdk_proto/VideoFPSEnum.pb.h"
+#include "aasdk_proto/VideoResolutionEnum.pb.h"
+#include "aasdk_proto/ButtonCodeEnum.pb.h"
+#include "BluetootAdapterType.hpp"
+#include "HandednessOfTrafficType.hpp"
+#include "AudioOutputBackendType.hpp"
 #include <boost/property_tree/ini_parser.hpp>
-#include "IConfiguration.hpp"
+
 
 namespace openauto
 {
 namespace configuration
 {
 
-class Configuration: public IConfiguration
+class Configuration
 {
 public:
+    typedef std::shared_ptr<Configuration> Pointer;
+    typedef std::vector<aasdk::proto::enums::ButtonCode::Enum> ButtonCodes;
+
     Configuration();
 
-    void load() override;
-    void reset() override;
-    void save() override;
+    void load();
+    void reset();
+    void save();
 
-    void setHandednessOfTrafficType(HandednessOfTrafficType value) override;
-    HandednessOfTrafficType getHandednessOfTrafficType() const override;
-    void showClock(bool value) override;
-    bool showClock() const override;
+    void setHandednessOfTrafficType(HandednessOfTrafficType value);
+    HandednessOfTrafficType getHandednessOfTrafficType() const;
+    void showClock(bool value);
+    bool showClock() const;
 
-    aasdk::proto::enums::VideoFPS::Enum getVideoFPS() const override;
-    void setVideoFPS(aasdk::proto::enums::VideoFPS::Enum value) override;
-    aasdk::proto::enums::VideoResolution::Enum getVideoResolution() const override;
-    void setVideoResolution(aasdk::proto::enums::VideoResolution::Enum value) override;
-    size_t getScreenDPI() const override;
-    void setScreenDPI(size_t value) override;
-    void setOMXLayerIndex(int32_t value) override;
-    int32_t getOMXLayerIndex() const override;
-    void setVideoMargins(QRect value) override;
-    QRect getVideoMargins() const override;
-    void setWhitescreenWorkaround(bool value) override;
-    bool getWhitescreenWorkaround() const override;
+    aasdk::proto::enums::VideoFPS::Enum getVideoFPS() const;
+    void setVideoFPS(aasdk::proto::enums::VideoFPS::Enum value);
+    aasdk::proto::enums::VideoResolution::Enum getVideoResolution() const;
+    void setVideoResolution(aasdk::proto::enums::VideoResolution::Enum value);
+    size_t getScreenDPI() const;
+    void setScreenDPI(size_t value);
+    void setOMXLayerIndex(int32_t value);
+    int32_t getOMXLayerIndex() const;
+    void setVideoMargins(QRect value);
+    QRect getVideoMargins() const;
+    void setWhitescreenWorkaround(bool value);
+    bool getWhitescreenWorkaround() const;
 
-    bool getTouchscreenEnabled() const override;
-    void setTouchscreenEnabled(bool value) override;
-    ButtonCodes getButtonCodes() const override;
-    void setButtonCodes(const ButtonCodes& value) override;
+    bool getTouchscreenEnabled() const;
+    void setTouchscreenEnabled(bool value);
+    ButtonCodes getButtonCodes() const;
+    void setButtonCodes(const ButtonCodes& value);
 
-    BluetoothAdapterType getBluetoothAdapterType() const override;
-    void setBluetoothAdapterType(BluetoothAdapterType value) override;
-    std::string getBluetoothRemoteAdapterAddress() const override;
-    void setBluetoothRemoteAdapterAddress(const std::string& value) override;
+    BluetoothAdapterType getBluetoothAdapterType() const;
+    void setBluetoothAdapterType(BluetoothAdapterType value);
+    std::string getBluetoothRemoteAdapterAddress() const;
+    void setBluetoothRemoteAdapterAddress(const std::string& value);
 
-    bool musicAudioChannelEnabled() const override;
-    void setMusicAudioChannelEnabled(bool value) override;
-    bool speechAudioChannelEnabled() const override;
-    void setSpeechAudioChannelEnabled(bool value) override;
-    AudioOutputBackendType getAudioOutputBackendType() const override;
-    void setAudioOutputBackendType(AudioOutputBackendType value) override;
+    bool musicAudioChannelEnabled() const;
+    void setMusicAudioChannelEnabled(bool value);
+    bool speechAudioChannelEnabled() const;
+    void setSpeechAudioChannelEnabled(bool value);
+    AudioOutputBackendType getAudioOutputBackendType() const;
+    void setAudioOutputBackendType(AudioOutputBackendType value);
 
-    std::string getWifiSSID() override;
-    void setWifiSSID(std::string value) override;
-    std::string getWifiPassword() override;
-    void setWifiPassword(std::string value) override;
-    std::string getWifiMAC() override;
-    void setWifiMAC(std::string value) override;
-    bool getAutoconnectBluetooth() override;
-    void setAutoconnectBluetooth(bool value) override;
-    std::string getLastBluetoothPair() override;
-    void setLastBluetoothPair(std::string value) override;
+    std::string getWifiSSID();
+    void setWifiSSID(std::string value);
+    std::string getWifiPassword();
+    void setWifiPassword(std::string value);
+    std::string getWifiMAC();
+    void setWifiMAC(std::string value);
+    bool getAutoconnectBluetooth();
+    void setAutoconnectBluetooth(bool value);
+    std::string getLastBluetoothPair();
+    void setLastBluetoothPair(std::string value);
 
 private:
     void readButtonCodes(boost::property_tree::ptree& iniConfig);

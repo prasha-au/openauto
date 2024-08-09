@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "openauto/Configuration/IConfiguration.hpp"
+#include "openauto/Configuration/Configuration.hpp"
 #include "IVideoOutput.hpp"
 
 namespace openauto
@@ -29,7 +29,7 @@ namespace projection
 class VideoOutput: public IVideoOutput
 {
 public:
-    VideoOutput(configuration::IConfiguration::Pointer configuration);
+    VideoOutput(configuration::Configuration::Pointer configuration);
 
     aasdk::proto::enums::VideoFPS::Enum getVideoFPS() const override;
     aasdk::proto::enums::VideoResolution::Enum getVideoResolution() const override;
@@ -37,7 +37,7 @@ public:
     QRect getVideoMargins() const override;
 
 protected:
-    configuration::IConfiguration::Pointer configuration_;
+    configuration::Configuration::Pointer configuration_;
 };
 
 }

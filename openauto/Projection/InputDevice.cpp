@@ -26,7 +26,7 @@ namespace openauto
 namespace projection
 {
 
-InputDevice::InputDevice(QObject& parent, configuration::IConfiguration::Pointer configuration, const QRect& touchscreenGeometry, const QRect& displayGeometry)
+InputDevice::InputDevice(QObject& parent, configuration::Configuration::Pointer configuration, const QRect& touchscreenGeometry, const QRect& displayGeometry)
     : parent_(parent)
     , configuration_(std::move(configuration))
     , touchscreenGeometry_(touchscreenGeometry)

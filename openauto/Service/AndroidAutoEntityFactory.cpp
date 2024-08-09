@@ -34,7 +34,7 @@ namespace service
 {
 
 AndroidAutoEntityFactory::AndroidAutoEntityFactory(boost::asio::io_service& ioService,
-                                                   configuration::IConfiguration::Pointer configuration,
+                                                   configuration::Configuration::Pointer configuration,
                                                    IServiceFactory& serviceFactory)
     : ioService_(ioService)
     , configuration_(std::move(configuration))

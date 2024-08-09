@@ -19,7 +19,7 @@
 #pragma once
 
 #include "openauto/Service/IServiceFactory.hpp"
-#include "openauto/Configuration/IConfiguration.hpp"
+#include "openauto/Configuration/Configuration.hpp"
 #include "openauto/Projection/InputDevice.hpp"
 #include "openauto/Projection/QtVideoOutput.hpp"
 #include "openauto/Service/BluetoothAdvertiseService.hpp"
@@ -34,7 +34,7 @@ class IAndroidAutoInterface;
 class ServiceFactory : public IServiceFactory
 {
 public:
-    ServiceFactory(boost::asio::io_service& ioService, configuration::IConfiguration::Pointer configuration, QWidget* activeArea=nullptr, bool nightMode=false);
+    ServiceFactory(boost::asio::io_service& ioService, configuration::Configuration::Pointer configuration, QWidget* activeArea=nullptr, bool nightMode=false);
     ServiceList create(aasdk::messenger::IMessenger::Pointer messenger) override;
     void setNightMode(bool nightMode);
     void sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode, projection::WheelDirection wheelDirection = projection::WheelDirection::NONE, projection::ButtonEventType buttonEventType = projection::ButtonEventType::NONE);
@@ -51,7 +51,7 @@ private:
     void createAudioServices(ServiceList& serviceList, aasdk::messenger::IMessenger::Pointer messenger);
 
     boost::asio::io_service& ioService_;
-    configuration::IConfiguration::Pointer configuration_;
+    configuration::Configuration::Pointer configuration_;
     QWidget* activeArea_;
     QRect screenGeometry_;
     std::function<void(bool)> activeCallback_;

@@ -10,7 +10,7 @@ namespace openauto
 namespace service
 {
 
-BluetoothAdvertiseService::BluetoothAdvertiseService(configuration::IConfiguration::Pointer config)
+BluetoothAdvertiseService::BluetoothAdvertiseService(configuration::Configuration::Pointer config)
     : server_(std::make_unique<QBluetoothServer>(QBluetoothServiceInfo::RfcommProtocol, this))
     , socket_(nullptr)
     , config_(std::move(config))

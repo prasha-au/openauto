@@ -29,7 +29,7 @@ AndroidAutoEntity::AndroidAutoEntity(boost::asio::io_service& ioService,
                                      aasdk::messenger::ICryptor::Pointer cryptor,
                                      aasdk::transport::ITransport::Pointer transport,
                                      aasdk::messenger::IMessenger::Pointer messenger,
-                                     configuration::IConfiguration::Pointer configuration,
+                                     configuration::Configuration::Pointer configuration,
                                      ServiceList serviceList,
                                      IPinger::Pointer pinger)
     : strand_(ioService)
