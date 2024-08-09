@@ -61,9 +61,11 @@ Qt::Key fromHandsFreeMeasurement(float adcVoltage)
 
 void SteeringWheelControl::run()
 {
+    int8_t testBuf = { 0 };
     if (
         (i2cFileDescriptor_ = open("/dev/i2c-1", O_RDWR)) < 0 ||
-        ioctl(i2cFileDescriptor_, I2C_SLAVE, 0x48) < 0
+        ioctl(i2cFileDescriptor_, I2C_SLAVE, 0x48) < 0 ||
+        read(i2cFileDescriptor_, &testBuf, 1) < 1
     ) {
         OPENAUTO_LOG(error) << "[SteeringWheelControl] Failed to initialize ADC";
         close(i2cFileDescriptor_);
