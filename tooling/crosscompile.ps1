@@ -1,5 +1,9 @@
 
-$sshTarget=$args[0]
+[CmdletBinding()]
+param(
+  [Parameter(Mandatory=$true)]
+  [String]$sshTarget
+)
 
 $buildFolder = "buildcross"
 $resultingBinaryPath = "$buildFolder/assets/autoapp"
