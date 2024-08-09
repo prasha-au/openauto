@@ -36,7 +36,6 @@ class ServiceFactory : public IServiceFactory
 public:
     ServiceFactory(boost::asio::io_service& ioService, configuration::IConfiguration::Pointer configuration, QWidget* activeArea=nullptr, bool nightMode=false);
     ServiceList create(aasdk::messenger::IMessenger::Pointer messenger) override;
-    void setOpacity(unsigned int alpha);
     void setNightMode(bool nightMode);
     void sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode, projection::WheelDirection wheelDirection = projection::WheelDirection::NONE, projection::ButtonEventType buttonEventType = projection::ButtonEventType::NONE);
     void sendKeyEvent(QKeyEvent* event);
