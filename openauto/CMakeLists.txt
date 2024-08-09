@@ -21,7 +21,6 @@ add_library(openauto SHARED
         Service/AndroidAutoEntity.cpp
         Service/VideoService.cpp
         Service/AppEvent.cpp
-        Configuration/RecentAddressesList.cpp
         Configuration/Configuration.cpp
         Projection/LocalBluetoothDevice.cpp
         Projection/VideoOutput.cpp
@@ -31,10 +30,8 @@ add_library(openauto SHARED
         Projection/QtAudioOutput.cpp
         ${CMAKE_SOURCE_DIR}/include/openauto/App.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/Configuration.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/RecentAddressesList.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/AudioOutputBackendType.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/IConfiguration.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/IRecentAddressesList.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/HandednessOfTrafficType.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/BluetootAdapterType.hpp
 	${CMAKE_SOURCE_DIR}/include/openauto/Service/MediaAudioService.hpp
