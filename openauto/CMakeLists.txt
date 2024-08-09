@@ -35,7 +35,6 @@ add_library(openauto SHARED
         ${CMAKE_SOURCE_DIR}/include/openauto/Configuration/BluetootAdapterType.hpp
 	${CMAKE_SOURCE_DIR}/include/openauto/Service/MediaAudioService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/SensorService.hpp
-        ${CMAKE_SOURCE_DIR}/include/openauto/Service/IPinger.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/IAndroidAutoEntity.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/SystemAudioService.hpp
         ${CMAKE_SOURCE_DIR}/include/openauto/Service/IAndroidAutoEntityEventHandler.hpp

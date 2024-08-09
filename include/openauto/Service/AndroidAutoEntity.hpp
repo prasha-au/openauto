@@ -26,7 +26,7 @@
 #include "openauto/Configuration/Configuration.hpp"
 #include "IAndroidAutoEntity.hpp"
 #include "IService.hpp"
-#include "IPinger.hpp"
+#include "Pinger.hpp"
 
 namespace openauto
 {
@@ -42,7 +42,7 @@ public:
                       aasdk::messenger::IMessenger::Pointer messenger,
                       configuration::Configuration::Pointer configuration,
                       ServiceList serviceList,
-                      IPinger::Pointer pinger);
+                      Pinger::Pointer pinger);
     ~AndroidAutoEntity() override;
 
     void start(IAndroidAutoEntityEventHandler& eventHandler) override;
@@ -72,7 +72,7 @@ private:
     aasdk::channel::control::IControlServiceChannel::Pointer controlServiceChannel_;
     configuration::Configuration::Pointer configuration_;
     ServiceList serviceList_;
-    IPinger::Pointer pinger_;
+    Pinger::Pointer pinger_;
     IAndroidAutoEntityEventHandler* eventHandler_;
 };
 

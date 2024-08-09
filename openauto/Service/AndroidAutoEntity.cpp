@@ -31,7 +31,7 @@ AndroidAutoEntity::AndroidAutoEntity(boost::asio::io_service& ioService,
                                      aasdk::messenger::IMessenger::Pointer messenger,
                                      configuration::Configuration::Pointer configuration,
                                      ServiceList serviceList,
-                                     IPinger::Pointer pinger)
+                                     Pinger::Pointer pinger)
     : strand_(ioService)
     , cryptor_(std::move(cryptor))
     , transport_(std::move(transport))
@@ -266,7 +266,7 @@ void AndroidAutoEntity::triggerQuit()
 
 void AndroidAutoEntity::schedulePing()
 {
-    auto promise = IPinger::Promise::defer(strand_);
+    auto promise = Pinger::Promise::defer(strand_);
     promise->then([this, self = this->shared_from_this()]() {
         this->sendPing();
         this->schedulePing();

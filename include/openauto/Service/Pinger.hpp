@@ -18,21 +18,26 @@
 
 #pragma once
 
-#include "IPinger.hpp"
+#include "aasdk/IO/Promise.hpp"
+
 
 namespace openauto
 {
 namespace service
 {
 
-class Pinger: public IPinger, public std::enable_shared_from_this<Pinger>
+class Pinger: public std::enable_shared_from_this<Pinger>
 {
+
 public:
+    typedef std::shared_ptr<Pinger> Pointer;
+    typedef aasdk::io::Promise<void> Promise;
+
     Pinger(boost::asio::io_service& ioService, time_t duration);
 
-    void ping(Promise::Pointer promise) override;
-    void pong() override;
-    void cancel() override;
+    void ping(Promise::Pointer promise);
+    void pong();
+    void cancel();
 
 private:
     using std::enable_shared_from_this<Pinger>::shared_from_this;
