@@ -170,15 +170,10 @@ bool InputDevice::handleKeyEvent(QEvent* event, QKeyEvent* key)
         return false;
     }
 
-    const auto& buttonCodes = this->getSupportedButtonCodes();
-    if(std::find(buttonCodes.begin(), buttonCodes.end(), buttonCode) != buttonCodes.end())
+    if(buttonCode != aasdk::proto::enums::ButtonCode::SCROLL_WHEEL || event->type() == QEvent::KeyRelease)
     {
-        if(buttonCode != aasdk::proto::enums::ButtonCode::SCROLL_WHEEL || event->type() == QEvent::KeyRelease)
-        {
-            eventHandler_->onButtonEvent({eventType, wheelDirection, buttonCode});
-        }
+        eventHandler_->onButtonEvent({eventType, wheelDirection, buttonCode});
     }
-
     return true;
 }
 bool InputDevice::handleTouchEvent(QEvent* event)
@@ -304,11 +299,6 @@ QRect InputDevice::getTouchscreenGeometry() const
 void InputDevice::setTouchscreenGeometry(QRect& touchscreenGeometry)
 {
     touchscreenGeometry_ = touchscreenGeometry;
-}
-
-IInputDevice::ButtonCodes InputDevice::getSupportedButtonCodes() const
-{
-    return configuration_->getButtonCodes();
 }
 
 }

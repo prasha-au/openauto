@@ -38,7 +38,6 @@ public:
 
     void start(IInputDeviceEventHandler& eventHandler) override;
     void stop() override;
-    ButtonCodes getSupportedButtonCodes() const override;
     bool eventFilter(QObject* obj, QEvent* event) override;
     bool hasTouchscreen() const override;
     QRect getTouchscreenGeometry() const override;
