@@ -55,7 +55,7 @@ i2cget -y 1 0x48
 - 1.5kΩ resistor
 
 
-Refer to [Fritzing file](./assets/swc.fzz) or [this Falstad link](https://www.falstad.com/circuit/circuitjs.html?ctz=CQAgjCAMB0l3BWcMBMcUHYMGZIA4UA2ATmIxAUgpABZsKBTAWjDACgAlEbFEFPPCCY8+AqOJpVs0elTnQEbAObcEvTLxp4qG8ZDYB3EIRp9J3dWP0AnY6Z5UwGQhbndch8M9d8ELh1Bstih+PgEBVDQYcJ7haKrqGLz6AA5e-vFOLpJSerGWgiY+NnZmjt4o5o6UqelldWCEuXKeWfUhLpUtwaFdPn1SaPpGAX3YanxJgdiCSABiEDq8YDVCEADKAOoAwuwz4LwL4ti4rlQsIFvbKGxAA) or the for wiring details.
+Refer to [Fritzing file](./assets/swc.fzz) or [this Falstad link](https://www.falstad.com/circuit/circuitjs.html?ctz=CQAgjCAMB0l3BWcMBMcUHYMGZIA4UA2ATmIxAUgpABZsKBTAWjDACgAlEbFEFPPCCY8+AqOJpVs0elTnQEbAObcEvTLxp4qG8ZDYB3EIRp9J3dWP0AnY6Z5UwGQhbndch8M9d8ELh1Bstih+PgEBVDQYcJ7haKrqGLz6AA5e-vFOLpJSerGWgiY+NnZmjt4o5o6UqelldWCEuXKeWfUhLpUtwaFdPn1SaPpGAX3YanxJgdiCSABiEDq8YDVCEADKAOoAwuwz4LwL4ti4rlQsIFvbKGxAA) for wiring details.
 
 
 ![SWC wiring](./assets/swc_wiring.png)
