@@ -58,7 +58,6 @@ systemctl mask rc-local                   # if not using /etc/rc.local
 systemctl disable sshswitch.service       # raspi enable ssh if file in boot
 systemctl disable rpi-eeprom-update.service  # applies a bootloader update if available
 systemctl disable systemd-journal-flush.service   # disable journal flushing from previous boot
-systemctl disable keyboard-setup.service  # keyboard locale stuff
 
 ```
 
