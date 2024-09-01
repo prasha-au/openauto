@@ -45,6 +45,7 @@ void Alsa::run()
             snd_mixer_close(mixerHandle_);
         }
         mixerElement_ = nullptr;
+        return;
     }
 
     OPENAUTO_LOG(info) << "[Alsa] Service is ready";
