@@ -74,7 +74,6 @@ bool SteeringWheelControl::setupAdc()
         ioctl(i2cFileDescriptor_, I2C_SLAVE, 0x48) < 0 ||
         write(i2cFileDescriptor_, configBuf, 3) != 3 ||
         write(i2cFileDescriptor_, &regSelectBuf, 1) != 1
-        // TODO: Disconnect ADC on initialized i2c bus to check if this correctly fails. Failing that we may need to do a read to verify presence.
     ) {
         close(i2cFileDescriptor_);
         return false;
