@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "OpenautoLog.hpp"
 #include "SteeringWheelControl.hpp"
@@ -16,40 +15,19 @@ namespace service
 
 namespace {
 
-int calculateResistance(float vout, int base_resistance)
-{
-  return (vout * base_resistance) / (3.3000 - vout);
-}
-
-Qt::Key fromMediaMeasurement(float adcVoltage)
-{
-    int resistance = calculateResistance(adcVoltage, 330);
-    const std::map<Qt::Key, std::pair<int, int>> KEY_MAP = {
-        {Qt::Key_VolumeMute, { 1, 40 }},
-        {Qt::Key_VolumeUp, { 60, 120 }},
-        {Qt::Key_VolumeDown, { 150, 250 }},
-        {Qt::Key_MediaPlay, { 300, 400 }},  // Mode
-        {Qt::Key_MediaNext, { 500, 700 }},
-        {Qt::Key_MediaPrevious, { 1100, 1200 }},
+Qt::Key fromVoltageReading(float adcVoltage) {
+    const std::map<Qt::Key, std::pair<float, float>> KEY_MAP = {
+        {Qt::Key_VolumeUp, { 0.700, 0.750 }},
+        {Qt::Key_VolumeDown, { 1.210, 1.260 }},
+        {Qt::Key_H, { 1.590, 1.640 }},  // hook on
+        {Qt::Key_MediaPlay, { 1.660, 1.710 }},  // mode
+        {Qt::Key_MediaNext, { 2.120, 2.175 }},
+        {Qt::Key_Escape, { 2.350, 2.400 }},  // hook off
+        {Qt::Key_MediaPrevious, { 2.540, 2.600 }},
+        {Qt::Key_M, { 2.790, 2.840 }},  // talk
     };
     for (const auto& pair : KEY_MAP) {
-        if (pair.second.first <= resistance && resistance <= pair.second.second) {
-            return pair.first;
-        }
-    }
-    return Qt::Key_unknown;
-}
-
-Qt::Key fromHandsFreeMeasurement(float adcVoltage)
-{
-    int resistance = calculateResistance(adcVoltage, 1500);
-    const std::map<Qt::Key, std::pair<int, int>> KEY_MAP = {
-        {Qt::Key_H, { 250, 400 }},             // Phone on
-        {Qt::Key_Escape, { 900, 1100 }},      // Phone off
-        {Qt::Key_M, { 3000, 3400 }},          // Talk
-    };
-    for (const auto& pair : KEY_MAP) {
-        if (pair.second.first <= resistance && resistance <= pair.second.second) {
+        if (pair.second.first <= adcVoltage && adcVoltage <= pair.second.second) {
             return pair.first;
         }
     }
@@ -61,21 +39,16 @@ Qt::Key fromHandsFreeMeasurement(float adcVoltage)
 
 void SteeringWheelControl::run()
 {
-    int8_t testBuf = { 0 };
-    if (
-        (i2cFileDescriptor_ = open("/dev/i2c-1", O_RDWR)) < 0 ||
-        ioctl(i2cFileDescriptor_, I2C_SLAVE, 0x48) < 0 ||
-        read(i2cFileDescriptor_, &testBuf, 1) < 1
-    ) {
+    if (!setupAdc()) {
         OPENAUTO_LOG(error) << "[SteeringWheelControl] Failed to initialize ADC";
-        close(i2cFileDescriptor_);
         return;
     }
 
-
     Qt::Key lastKey = Qt::Key_unknown;
     while (true) {
-        Qt::Key newKey = determineKey();
+        float adcReading = readAdcVoltage();
+        // OPENAUTO_LOG(info) << "[SteeringWheelControl] ADC Voltage: " << adcReading;
+        Qt::Key newKey = fromVoltageReading(adcReading);
         if (lastKey == Qt::Key_unknown && newKey != Qt::Key_unknown) {
             OPENAUTO_LOG(info) << "[SteeringWheelControl] Key pressed: " << newKey;
             emit onKeyPress(newKey);
@@ -85,63 +58,49 @@ void SteeringWheelControl::run()
 }
 
 
-Qt::Key SteeringWheelControl::determineKey()
+
+bool SteeringWheelControl::setupAdc()
 {
-    Qt::Key mediaKey = fromMediaMeasurement(readAdcVoltage(0));
-    if (mediaKey != Qt::Key_unknown) {
-        return mediaKey;
-    } else {
-        Qt::Key handsFreeKey = fromHandsFreeMeasurement(readAdcVoltage(1));
-        return handsFreeKey;
+    // ADC config package
+    // bit    | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  |
+    // byte 1 | op |      adc #   |     gain     | op |
+    // byte 2 |  data rate   |    comparator opts     |
+
+    // Current config is: continuous read mode, channel 1, 250 samples/sec, 4.096V range
+    const uint8_t configBuf[] = { 1, 0b11010010, 0b10000000 };
+    const uint8_t regSelectBuf[1] = { 0 };
+    if (
+        (i2cFileDescriptor_ = open("/dev/i2c-1", O_RDWR)) < 0 ||
+        ioctl(i2cFileDescriptor_, I2C_SLAVE, 0x48) < 0 ||
+        write(i2cFileDescriptor_, configBuf, 3) != 3 ||
+        write(i2cFileDescriptor_, &regSelectBuf, 1) != 1
+        // TODO: Disconnect ADC on initialized i2c bus to check if this correctly fails. Failing that we may need to do a read to verify presence.
+    ) {
+        close(i2cFileDescriptor_);
+        return false;
     }
+    return true;
 }
 
 
-
-float SteeringWheelControl::readAdcVoltage(int channel)
+float SteeringWheelControl::readAdcVoltage()
 {
-  const uint8_t adcChannelBits[] = { 0b100, 0b101, 0b110, 0b111 };
-
-  // ADC config package
-  // bit    | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  |
-  // byte 1 | op |      adc #   |     gain     | op |
-  // byte 2 |  data rate   |    comparator opts     |
-  uint8_t configBuf[] = {
-    1,
-    (uint8_t) (0b10000011 | (adcChannelBits[channel] << 4)),
-    0b10100000,
-  };
-
-
-  int stableValue = -1;
+  int averageValue = 0;
   for (int i = 0; i < 5; i++) {
-    try {
-        if (write(i2cFileDescriptor_, configBuf, 3) != 3) { throw -1; }
-
-        uint8_t isReadyCheck[1] = { 0 };
-        do {
-            if (read(i2cFileDescriptor_, &isReadyCheck, 1) != 1) { throw -2; }
-        } while ((isReadyCheck[0] & 0b10000000) == 0);
-
-
-        const uint8_t regSelect[1] = { 0 };
-        if (write(i2cFileDescriptor_, &regSelect, 1) != 1) { throw -3; }
-
-        uint8_t valueBuf[2];
-
-        if (read(i2cFileDescriptor_, valueBuf, 2) != 2) { throw -4; }
-
-        int value = (valueBuf[0] << 8) + valueBuf[1];
-        stableValue = stableValue == -1 ? value : ((stableValue + value) / 2);
-
-
-    } catch (int errorNumber) {
-        OPENAUTO_LOG(warning) << "Failed to read ADC " << errorNumber;
+    uint8_t valueBuf[2];
+    if (read(i2cFileDescriptor_, valueBuf, 2) != 2) {
+        OPENAUTO_LOG(warning) << "[SteeringWheelControl] Failed to read ADC value";
+        return -1;
     }
+    int value = (valueBuf[0] << 8) + valueBuf[1];
+    averageValue = i == 0 ? value : ((averageValue + value) / 2);
+    QThread::msleep(10);
   }
 
-  float vout = (stableValue / 32768.0) * 4.096;
-  return vout;
+
+  float voltage = (averageValue / 32768.0) * 4.096;
+  emit onAdcUpdate(voltage);
+  return voltage;
 }
 
 }

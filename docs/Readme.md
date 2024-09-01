@@ -38,7 +38,7 @@ nmcli con up hotspot
 ```
 
 
-# login speedup
+## login speedup
 ```
 dphys-swapfile swapoff
 dphys-swapfile uninstall
@@ -58,11 +58,12 @@ systemctl mask rc-local                   # if not using /etc/rc.local
 systemctl disable sshswitch.service       # raspi enable ssh if file in boot
 systemctl disable rpi-eeprom-update.service  # applies a bootloader update if available
 systemctl disable systemd-journal-flush.service   # disable journal flushing from previous boot
+systemctl disable keyboard-setup.service  # keyboard locale stuff
 
 ```
 
 
-# login messages
+## login messages
 Change `/etc/systemd/system/getty@tty1.service.d/autologin.conf`
 ```
 [Service]
@@ -71,3 +72,13 @@ ExecStart=-/sbin/agetty --skip-login --nonewline --noissue --autologin [User Nam
 ```
 
 Add `~/.hushlogin`.
+
+
+## pipewire
+Pipewire got rid of audio lag I was getting with PulseAudio. The interface libs add a direct dropin replacement for PulseAudio.
+```bash
+apt install pipewire-audio pipewire-pulse pipewire-alsa
+apt remove pulseaudio-alsa
+
+pactl info # this should show (on PipeWire xxx) under Server Name
+```
