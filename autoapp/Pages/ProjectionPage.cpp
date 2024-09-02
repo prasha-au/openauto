@@ -16,13 +16,11 @@ ProjectionPage::ProjectionPage(autoapp::service::Alsa *alsa, QWidget *parent)
 {
     ui_->setupUi(this);
     aaFrame = ui_->aaFrame;
+    ui_->volumeIndicator->hide();
 
     volumeIndicationTimeout_ = new QTimer(this);
     volumeIndicationTimeout_->setSingleShot(true);
-    connect(volumeIndicationTimeout_, &QTimer::timeout, this, [&ui = ui_]() {
-        ui->volumeIndicator->hide();
-        ui->aaFrame->setFocus();
-    });
+    connect(volumeIndicationTimeout_, &QTimer::timeout, this, &ProjectionPage::hideVolumeIndicator);
 
     connect(alsa_, &autoapp::service::Alsa::onVolumeChange, this, &ProjectionPage::updateVolume);
 }
@@ -55,9 +53,11 @@ void ProjectionPage::keyPressEvent(QKeyEvent* event)
     }
 }
 
-
 void ProjectionPage::showVolumeIndicator()
 {
+    if (!isVisible()) {
+        return;
+    }
     ui_->volumeIndicator->show();
     ui_->volumeIndicator->setFocus();
     volumeIndicationTimeout_->start(2000);
@@ -66,7 +66,11 @@ void ProjectionPage::showVolumeIndicator()
 
 void ProjectionPage::hideVolumeIndicator()
 {
-    volumeIndicationTimeout_->start(0);
+    if (!isVisible()) {
+        return;
+    }
+    ui_->volumeIndicator->hide();
+    ui_->aaFrame->setFocus();
 }
 
 
