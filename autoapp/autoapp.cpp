@@ -154,13 +154,12 @@ int main(int argc, char* argv[])
 
     autoapp::service::SteeringWheelControl swcWorker;
     swcWorker.start();
-    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, stackedWidget, [&app, &alsaWorker](Qt::Key key) {
+    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, stackedWidget, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
         if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
             alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -10 : 10);
-        } else if (key == Qt::Key_VolumeMute) {
-            alsaWorker.toggleMute();
         } else {
-            app.postEvent(QApplication::focusWidget(), new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));
+            app.postEvent(projectionPage.aaFrame, new QKeyEvent(QEvent::KeyPress, key, Qt::NoModifier));
+            app.postEvent(projectionPage.aaFrame, new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));
         }
     });
 

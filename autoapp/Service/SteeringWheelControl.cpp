@@ -19,11 +19,11 @@ Qt::Key fromVoltageReading(float adcVoltage) {
     const std::map<Qt::Key, std::pair<float, float>> KEY_MAP = {
         {Qt::Key_VolumeUp, { 0.700, 0.750 }},
         {Qt::Key_VolumeDown, { 1.210, 1.260 }},
-        {Qt::Key_H, { 1.590, 1.640 }},  // hook on
-        {Qt::Key_MediaPlay, { 1.660, 1.710 }},  // mode
-        {Qt::Key_MediaNext, { 2.120, 2.175 }},
+        {Qt::Key_H, { 1.590, 1.640 }},  // hook on => home
+        {Qt::Key_B, { 1.660, 1.710 }},  // mode => play/pause
+        {Qt::Key_N, { 2.120, 2.175 }},  // seek+ => media next
         {Qt::Key_Escape, { 2.350, 2.400 }},  // hook off
-        {Qt::Key_MediaPrevious, { 2.540, 2.600 }},
+        {Qt::Key_V, { 2.540, 2.600 }},  // seek- => media prev
         {Qt::Key_M, { 2.790, 2.840 }},  // talk
     };
     for (const auto& pair : KEY_MAP) {

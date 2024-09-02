@@ -29,6 +29,8 @@ private:
     Ui::ProjectionPage* ui_;
     QTimer* volumeIndicationTimeout_;
     void updateVolume(int);
+    void showVolumeIndicator();
+    void hideVolumeIndicator();
 
 };
 
