@@ -37,6 +37,7 @@ void ProjectionPage::updateVolume(int volume)
 {
     volumeIndicationTimeout_->stop();
     ui_->volumeIndicator->setValue(volume);
+    ui_->volumeIndicator->update();
     ui_->volumeIndicator->show();
     volumeIndicationTimeout_->start(2000);
 }
