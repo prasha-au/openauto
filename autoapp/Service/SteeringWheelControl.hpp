@@ -22,7 +22,6 @@ private:
 
 signals:
     void onKeyPress(Qt::Key);
-    void onAdcUpdate(float);
 
 };
 

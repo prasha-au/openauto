@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
     swcWorker.start();
     QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, stackedWidget, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
         if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
-            alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -10 : 10);
+            alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -5 : 5);
         } else {
             app.postEvent(projectionPage.aaFrame, new QKeyEvent(QEvent::KeyPress, key, Qt::NoModifier));
             app.postEvent(projectionPage.aaFrame, new QKeyEvent(QEvent::KeyRelease, key, Qt::NoModifier));

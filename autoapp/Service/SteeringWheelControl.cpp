@@ -7,7 +7,6 @@
 #include <linux/i2c-dev.h>
 #include <fcntl.h>
 
-
 namespace autoapp
 {
 namespace service
@@ -17,14 +16,14 @@ namespace {
 
 Qt::Key fromVoltageReading(float adcVoltage) {
     const std::map<Qt::Key, std::pair<float, float>> KEY_MAP = {
-        {Qt::Key_VolumeUp, { 0.700, 0.750 }},
-        {Qt::Key_VolumeDown, { 1.210, 1.260 }},
-        {Qt::Key_H, { 1.590, 1.640 }},  // hook on => home
-        {Qt::Key_B, { 1.660, 1.710 }},  // mode => play/pause
-        {Qt::Key_N, { 2.120, 2.175 }},  // seek+ => media next
-        {Qt::Key_Escape, { 2.350, 2.400 }},  // hook off
-        {Qt::Key_V, { 2.540, 2.600 }},  // seek- => media prev
-        {Qt::Key_M, { 2.790, 2.840 }},  // talk
+        {Qt::Key_VolumeUp, { 0.710, 0.740 }},
+        {Qt::Key_VolumeDown, { 1.220, 1.250 }},
+        {Qt::Key_H, { 1.600, 1.630 }},  // hook on => home
+        {Qt::Key_B, { 1.670, 1.700 }},  // mode => play/pause
+        {Qt::Key_N, { 2.130, 2.160 }},  // seek+ => media next
+        {Qt::Key_Escape, { 2.360, 2.390 }},  // hook off
+        {Qt::Key_V, { 2.560, 2.590 }},  // seek- => media prev
+        {Qt::Key_M, { 2.810, 2.830 }},  // talk
     };
     for (const auto& pair : KEY_MAP) {
         if (pair.second.first <= adcVoltage && adcVoltage <= pair.second.second) {
@@ -46,11 +45,9 @@ void SteeringWheelControl::run()
 
     Qt::Key lastKey = Qt::Key_unknown;
     while (true) {
-        float adcReading = readAdcVoltage();
-        // OPENAUTO_LOG(info) << "[SteeringWheelControl] ADC Voltage: " << adcReading;
-        Qt::Key newKey = fromVoltageReading(adcReading);
+        float voltage = readAdcVoltage();
+        Qt::Key newKey = fromVoltageReading(voltage);
         if (lastKey == Qt::Key_unknown && newKey != Qt::Key_unknown) {
-            OPENAUTO_LOG(info) << "[SteeringWheelControl] Key pressed: " << newKey;
             emit onKeyPress(newKey);
         }
         lastKey = newKey;
@@ -84,22 +81,31 @@ bool SteeringWheelControl::setupAdc()
 
 float SteeringWheelControl::readAdcVoltage()
 {
-  int averageValue = 0;
-  for (int i = 0; i < 5; i++) {
-    uint8_t valueBuf[2];
-    if (read(i2cFileDescriptor_, valueBuf, 2) != 2) {
-        OPENAUTO_LOG(warning) << "[SteeringWheelControl] Failed to read ADC value";
-        return -1;
+    const int JITTER_THRESHOLD = 500;
+
+    int stableValue = 0;
+    int verifyCount = 0;
+    while (verifyCount < 5) {
+        uint8_t valueBuf[2];
+        if (read(i2cFileDescriptor_, valueBuf, 2) != 2) {
+            OPENAUTO_LOG(warning) << "[SteeringWheelControl] Failed to read ADC value";
+            stableValue = 0;
+            verifyCount = 0;
+            QThread::msleep(100);
+            continue;
+        }
+        int value = (valueBuf[0] << 8) + valueBuf[1];
+        if (std::abs(value - stableValue) < JITTER_THRESHOLD) {
+            verifyCount++;
+        } else {
+            stableValue = value;
+            verifyCount = 0;
+        }
+        QThread::msleep(8);
     }
-    int value = (valueBuf[0] << 8) + valueBuf[1];
-    averageValue = i == 0 ? value : ((averageValue + value) / 2);
-    QThread::msleep(10);
-  }
 
-
-  float voltage = (averageValue / 32768.0) * 4.096;
-  emit onAdcUpdate(voltage);
-  return voltage;
+    float voltage = (stableValue / 32768.0) * 4.096;
+    return voltage;
 }
 
 }
