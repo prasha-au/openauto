@@ -34,6 +34,8 @@ const std::string Configuration::cVideoResolutionKey = "Video.Resolution";
 const std::string Configuration::cVideoScreenDPIKey = "Video.ScreenDPI";
 const std::string Configuration::cVideoMarginWidth = "Video.MarginWidth";
 const std::string Configuration::cVideoMarginHeight = "Video.MarginHeight";
+const std::string Configuration::cVideoScreenSizeWidth = "Video.ScreenWidth";
+const std::string Configuration::cVideoScreenSizeHeight = "Video.ScreenHeight";
 
 const std::string Configuration::cInputEnableTouchscreenKey = "Input.EnableTouchscreen";
 
@@ -67,6 +69,8 @@ void Configuration::load()
 
         videoMargins_ = QRect(0, 0, iniConfig.get<int32_t>(cVideoMarginWidth, 0), iniConfig.get<int32_t>(cVideoMarginHeight, 0));
 
+        screenSize_ = QRect(0, 0, iniConfig.get<int32_t>(cVideoScreenSizeWidth, 720), iniConfig.get<int32_t>(cVideoScreenSizeHeight, 480));
+
         enableTouchscreen_ = iniConfig.get<bool>(cInputEnableTouchscreenKey, true);
 
         wifiSSID_ = iniConfig.get<std::string>(cWifiSSID, "");
@@ -90,7 +94,7 @@ void Configuration::reset()
     videoResolution_ = aasdk::proto::enums::VideoResolution::_480p;
     screenDPI_ = 140;
     videoMargins_ = QRect(0, 0, 0, 0);
-    enableTouchscreen_ = true;
+    enableTouchscreen_ = false;
 }
 
 void Configuration::save()
@@ -104,6 +108,8 @@ void Configuration::save()
     iniConfig.put<size_t>(cVideoScreenDPIKey, screenDPI_);
     iniConfig.put<uint32_t>(cVideoMarginWidth, videoMargins_.width());
     iniConfig.put<uint32_t>(cVideoMarginHeight, videoMargins_.height());
+    iniConfig.put<uint32_t>(cVideoScreenSizeWidth, screenSize_.width());
+    iniConfig.put<uint32_t>(cVideoScreenSizeHeight, screenSize_.height());
 
     iniConfig.put<bool>(cInputEnableTouchscreenKey, enableTouchscreen_);
 
@@ -141,6 +147,11 @@ size_t Configuration::getScreenDPI() const
 QRect Configuration::getVideoMargins() const
 {
     return videoMargins_;
+}
+
+QRect Configuration::getScreenSize() const
+{
+    return screenSize_;
 }
 
 bool Configuration::getTouchscreenEnabled() const

@@ -2,11 +2,12 @@
 #include <QApplication>
 #include <QWindow>
 #include <QMainWindow>
-#include <QSplashScreen>
 #include <QStackedWidget>
 #include <QFile>
 #include <QThread>
+#include <QStyleFactory>
 #include <QMetaType>
+#include <QScreen>
 #include "aasdk/USB/USBHub.hpp"
 #include "aasdk/USB/ConnectedAccessoriesEnumerator.hpp"
 #include "aasdk/USB/AccessoryModeQueryChain.hpp"
@@ -26,9 +27,6 @@
 
 using namespace openauto;
 using ThreadPool = std::vector<std::thread>;
-
-const int SCREEN_WIDTH = 710;
-const int SCREEN_HEIGHT = 480;
 
 void startUSBWorkers(boost::asio::io_service& ioService, libusb_context* usbContext, ThreadPool& threadPool)
 {
@@ -63,12 +61,8 @@ void startIOServiceWorkers(boost::asio::io_service& ioService, ThreadPool& threa
 
 int main(int argc, char* argv[])
 {
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
     QApplication app(argc, argv);
-    QPixmap pixmap(":/ico_androidauto.png");
-    QSize pixmapSize = pixmap.size();
-    QSplashScreen splash(pixmap);
-    splash.move(SCREEN_WIDTH / 2 - pixmapSize.width() / 2, SCREEN_HEIGHT / 2 - pixmapSize.height() / 2);
-    splash.show();
 
     app.processEvents();
 
@@ -96,7 +90,6 @@ int main(int argc, char* argv[])
     QStackedWidget *stackedWidget = new QStackedWidget;
     stackedWidget->setStyleSheet("background-color: #333333;color: #eeeeec;");
 
-
     autoapp::pages::HomePage homePage;
     QObject::connect(&homePage, &autoapp::pages::HomePage::exit, []() { std::exit(0); });
     app.setOverrideCursor(Qt::BlankCursor);
@@ -107,11 +100,8 @@ int main(int argc, char* argv[])
     stackedWidget->addWidget(&projectionPage);
 
     stackedWidget->setCurrentIndex(0);
-
-
     window.setCentralWidget(stackedWidget);
-    window.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    projectionPage.aaFrame->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
 
 
     // ===================================== SERVICE STUFF
@@ -190,9 +180,12 @@ int main(int argc, char* argv[])
 
     openautoApp->waitForDevice(true);
 
+    auto screenSize = configuration->getScreenSize();
+    window.resize(screenSize.width(), screenSize.height());
+    projectionPage.aaFrame->resize(screenSize.width(), screenSize.height());
+
     window.show();
     window.activateWindow();
-    splash.finish(&window);
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));

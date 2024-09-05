@@ -51,6 +51,7 @@ public:
     aasdk::proto::enums::VideoResolution::Enum getVideoResolution() const;
     size_t getScreenDPI() const;
     QRect getVideoMargins() const;
+    QRect getScreenSize() const;
 
     bool getTouchscreenEnabled() const;
 
@@ -66,6 +67,7 @@ private:
     aasdk::proto::enums::VideoResolution::Enum videoResolution_;
     size_t screenDPI_;
     QRect videoMargins_;
+    QRect screenSize_;
     bool enableTouchscreen_;
     std::string wifiSSID_;
     std::string wifiPassword_;
@@ -81,6 +83,9 @@ private:
     static const std::string cVideoScreenDPIKey;
     static const std::string cVideoMarginWidth;
     static const std::string cVideoMarginHeight;
+
+    static const std::string cVideoScreenSizeWidth;
+    static const std::string cVideoScreenSizeHeight;
 
     static const std::string cInputEnableTouchscreenKey;
 
