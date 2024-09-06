@@ -176,6 +176,7 @@ bool InputDevice::handleKeyEvent(QEvent* event, QKeyEvent* key)
     }
     return true;
 }
+
 bool InputDevice::handleTouchEvent(QEvent* event)
 {
     if(!configuration_->getTouchscreenEnabled())

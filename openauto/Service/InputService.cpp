@@ -25,6 +25,29 @@ namespace openauto
 namespace service
 {
 
+namespace {
+
+const auto USED_BUTTON_CODES = {
+    aasdk::proto::enums::ButtonCode::ENTER,
+    aasdk::proto::enums::ButtonCode::LEFT,
+    aasdk::proto::enums::ButtonCode::RIGHT,
+    aasdk::proto::enums::ButtonCode::UP,
+    aasdk::proto::enums::ButtonCode::DOWN,
+    aasdk::proto::enums::ButtonCode::BACK,
+    aasdk::proto::enums::ButtonCode::HOME,
+    aasdk::proto::enums::ButtonCode::PHONE,
+    aasdk::proto::enums::ButtonCode::CALL_END,
+    aasdk::proto::enums::ButtonCode::PLAY,
+    aasdk::proto::enums::ButtonCode::PAUSE,
+    aasdk::proto::enums::ButtonCode::PREV,
+    aasdk::proto::enums::ButtonCode::TOGGLE_PLAY,
+    aasdk::proto::enums::ButtonCode::NEXT,
+    aasdk::proto::enums::ButtonCode::MICROPHONE_1,
+    aasdk::proto::enums::ButtonCode::SCROLL_WHEEL
+};
+
+}
+
 InputService::InputService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger, projection::IInputDevice::Pointer inputDevice)
     : strand_(ioService)
     , channel_(std::make_shared<aasdk::channel::input::InputServiceChannel>(strand_, std::move(messenger)))
@@ -59,6 +82,11 @@ void InputService::fillFeatures(aasdk::proto::messages::ServiceDiscoveryResponse
     channelDescriptor->set_channel_id(static_cast<uint32_t>(channel_->getId()));
 
     auto* inputChannel = channelDescriptor->mutable_input_channel();
+    for (auto buttonCode : USED_BUTTON_CODES)
+    {
+        inputChannel->add_supported_keycodes(buttonCode);
+    }
+
 
     if(inputDevice_->hasTouchscreen())
     {
@@ -168,7 +196,6 @@ void InputService::onTouchEvent(aasdk::proto::messages::InputEventIndication inp
 {
 
     strand_.dispatch([this, self = this->shared_from_this(), inputEventIndication = std::move(inputEventIndication)]() {
-
         auto promise = aasdk::channel::SendPromise::defer(strand_);
         promise->then([]() {}, std::bind(&InputService::onChannelError, this->shared_from_this(), std::placeholders::_1));
         channel_->sendInputEventIndication(inputEventIndication, std::move(promise));
