@@ -64,6 +64,7 @@ int main(int argc, char* argv[])
     QApplication::setStyle(QStyleFactory::create("Fusion"));
     QApplication app(argc, argv);
 
+    app.setOverrideCursor(Qt::BlankCursor);
     app.processEvents();
 
     // ===================================== SERVICE STUFF
@@ -87,20 +88,19 @@ int main(int argc, char* argv[])
 
     QMainWindow window;
 
-    QStackedWidget *stackedWidget = new QStackedWidget;
-    stackedWidget->setStyleSheet("background-color: #333333;color: #eeeeec;");
+    QStackedWidget stackedWidget;
+    stackedWidget.setStyleSheet("background-color: #333333;color: #eeeeec;");
 
     autoapp::pages::HomePage homePage;
     QObject::connect(&homePage, &autoapp::pages::HomePage::exit, []() { std::exit(0); });
-    app.setOverrideCursor(Qt::BlankCursor);
-    stackedWidget->addWidget(&homePage);
+    stackedWidget.addWidget(&homePage);
 
     autoapp::pages::ProjectionPage projectionPage(&alsaWorker);
     projectionPage.hide();
-    stackedWidget->addWidget(&projectionPage);
+    stackedWidget.addWidget(&projectionPage);
 
-    stackedWidget->setCurrentIndex(0);
-    window.setCentralWidget(stackedWidget);
+    stackedWidget.setCurrentIndex(0);
+    window.setCentralWidget(&stackedWidget);
 
 
 
@@ -125,12 +125,12 @@ int main(int argc, char* argv[])
     QObject::connect(&filter, &autoapp::service::OpenautoEventFilter::onAppEvent, [&projectionPage, &stackedWidget, &openautoApp](openauto::service::AppEventType value) {
         switch (value) {
             case openauto::service::AppEventType::ProjectionShow:
-                stackedWidget->setCurrentIndex(1);
+                stackedWidget.setCurrentIndex(1);
                 projectionPage.show();
                 break;
             case openauto::service::AppEventType::ProjectionEnd:
                 projectionPage.hide();
-                stackedWidget->setCurrentIndex(0);
+                stackedWidget.setCurrentIndex(0);
                 break;
         }
     });
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
     autoapp::service::SteeringWheelControl swcWorker;
     swcWorker.start();
-    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, stackedWidget, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
+    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, &stackedWidget, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
         if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
             alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -5 : 5);
         } else {
@@ -178,14 +178,13 @@ int main(int argc, char* argv[])
         serviceFactory.connectToLastBluetoothDevice();
     });
 
-    openautoApp->waitForDevice(true);
-
-    auto screenSize = configuration->getScreenSize();
-    window.resize(screenSize.width(), screenSize.height());
-    projectionPage.aaFrame->resize(screenSize.width(), screenSize.height());
-
+    auto screenSize = QGuiApplication::primaryScreen()->size();
+    window.resize(screenSize);
+    projectionPage.aaFrame->resize(screenSize);
     window.show();
     window.activateWindow();
+
+    openautoApp->waitForDevice(true);
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));
