@@ -25,6 +25,10 @@ apt-get install -y pipewire-audio pipewire-pulse pipewire-alsa
 ```
 echo "SUBSYSTEM==\"usb\", ATTR{idVendor}==\"*\", ATTR{idProduct}==\"*\", MODE=\"0660\", GROUP=\"plugdev\"" | sudo tee /etc/udev/rules.d/51-openauto.rules
 ```
+6. Install i2c headers for SWC (i2c-tools is useful for debugging)
+```bash
+apt-get install -y i2c-tools
+```
 
 
 ## 3. Openauto
@@ -51,7 +55,7 @@ Restart=always
 [Install]
 WantedBy=default.target
 ```
-
+4. Remember to enable GPIO 26 for enabling the amps
 
 
 ## Bootup speed improvements
