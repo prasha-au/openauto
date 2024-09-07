@@ -2,11 +2,12 @@
 #include <QApplication>
 #include <QWindow>
 #include <QMainWindow>
-#include <QSplashScreen>
 #include <QStackedWidget>
 #include <QFile>
 #include <QThread>
+#include <QStyleFactory>
 #include <QMetaType>
+#include <QScreen>
 #include "aasdk/USB/USBHub.hpp"
 #include "aasdk/USB/ConnectedAccessoriesEnumerator.hpp"
 #include "aasdk/USB/AccessoryModeQueryChain.hpp"
@@ -26,9 +27,6 @@
 
 using namespace openauto;
 using ThreadPool = std::vector<std::thread>;
-
-const int SCREEN_WIDTH = 710;
-const int SCREEN_HEIGHT = 480;
 
 void startUSBWorkers(boost::asio::io_service& ioService, libusb_context* usbContext, ThreadPool& threadPool)
 {
@@ -63,13 +61,10 @@ void startIOServiceWorkers(boost::asio::io_service& ioService, ThreadPool& threa
 
 int main(int argc, char* argv[])
 {
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
     QApplication app(argc, argv);
-    QPixmap pixmap(":/ico_androidauto.png");
-    QSize pixmapSize = pixmap.size();
-    QSplashScreen splash(pixmap);
-    splash.move(SCREEN_WIDTH / 2 - pixmapSize.width() / 2, SCREEN_HEIGHT / 2 - pixmapSize.height() / 2);
-    splash.show();
 
+    app.setOverrideCursor(Qt::BlankCursor);
     app.processEvents();
 
     // ===================================== SERVICE STUFF
@@ -93,25 +88,20 @@ int main(int argc, char* argv[])
 
     QMainWindow window;
 
-    QStackedWidget *stackedWidget = new QStackedWidget;
-    stackedWidget->setStyleSheet("background-color: #333333;color: #eeeeec;");
-
+    QStackedWidget stackedWidget;
+    stackedWidget.setStyleSheet("background-color: #333333;color: #eeeeec;");
 
     autoapp::pages::HomePage homePage;
     QObject::connect(&homePage, &autoapp::pages::HomePage::exit, []() { std::exit(0); });
-    app.setOverrideCursor(Qt::BlankCursor);
-    stackedWidget->addWidget(&homePage);
+    stackedWidget.addWidget(&homePage);
 
     autoapp::pages::ProjectionPage projectionPage(&alsaWorker);
     projectionPage.hide();
-    stackedWidget->addWidget(&projectionPage);
+    stackedWidget.addWidget(&projectionPage);
 
-    stackedWidget->setCurrentIndex(0);
+    stackedWidget.setCurrentIndex(0);
+    window.setCentralWidget(&stackedWidget);
 
-
-    window.setCentralWidget(stackedWidget);
-    window.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
-    projectionPage.aaFrame->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 
     // ===================================== SERVICE STUFF
@@ -128,19 +118,17 @@ int main(int argc, char* argv[])
     auto connectedAccessoriesEnumerator(std::make_shared<aasdk::usb::ConnectedAccessoriesEnumerator>(usbWrapper, ioService, queryChainFactory));
     auto openautoApp = std::make_shared<openauto::App>(ioService, usbWrapper, tcpWrapper, androidAutoEntityFactory, std::move(usbHub), std::move(connectedAccessoriesEnumerator));
 
-    serviceFactory.startBluetoothAdvertising();
-
     autoapp::service::OpenautoEventFilter filter;
     app.installEventFilter(&filter);
     QObject::connect(&filter, &autoapp::service::OpenautoEventFilter::onAppEvent, [&projectionPage, &stackedWidget, &openautoApp](openauto::service::AppEventType value) {
         switch (value) {
             case openauto::service::AppEventType::ProjectionShow:
-                stackedWidget->setCurrentIndex(1);
+                stackedWidget.setCurrentIndex(1);
                 projectionPage.show();
                 break;
             case openauto::service::AppEventType::ProjectionEnd:
                 projectionPage.hide();
-                stackedWidget->setCurrentIndex(0);
+                stackedWidget.setCurrentIndex(0);
                 break;
         }
     });
@@ -154,7 +142,7 @@ int main(int argc, char* argv[])
 
     autoapp::service::SteeringWheelControl swcWorker;
     swcWorker.start();
-    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, stackedWidget, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
+    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
         if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
             alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -5 : 5);
         } else {
@@ -183,16 +171,15 @@ int main(int argc, char* argv[])
     QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&serviceFactory]() {
         serviceFactory.connectToLastBluetoothDevice();
     });
-    QTimer::singleShot(100, &app, [&serviceFactory]() {
-        OPENAUTO_LOG(info) << "Triggering bluetooth connect";
-        serviceFactory.connectToLastBluetoothDevice();
-    });
 
-    openautoApp->waitForDevice(true);
-
+    auto screenSize = QGuiApplication::primaryScreen()->size();
+    window.resize(screenSize);
+    projectionPage.aaFrame->resize(screenSize);
     window.show();
     window.activateWindow();
-    splash.finish(&window);
+
+    openautoApp->waitForDevice(true);
+    serviceFactory.startBluetoothAdvertising();
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));

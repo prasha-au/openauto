@@ -59,6 +59,7 @@ void ProjectionPage::showVolumeIndicator()
         return;
     }
     ui_->volumeIndicator->show();
+    ui_->volumeIndicator->move(aaFrame->width() / 7, aaFrame->height() - (aaFrame->height() / 16) - 15);
     ui_->volumeIndicator->setFocus();
     volumeIndicationTimeout_->start(2000);
 }
