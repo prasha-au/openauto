@@ -118,8 +118,6 @@ int main(int argc, char* argv[])
     auto connectedAccessoriesEnumerator(std::make_shared<aasdk::usb::ConnectedAccessoriesEnumerator>(usbWrapper, ioService, queryChainFactory));
     auto openautoApp = std::make_shared<openauto::App>(ioService, usbWrapper, tcpWrapper, androidAutoEntityFactory, std::move(usbHub), std::move(connectedAccessoriesEnumerator));
 
-    serviceFactory.startBluetoothAdvertising();
-
     autoapp::service::OpenautoEventFilter filter;
     app.installEventFilter(&filter);
     QObject::connect(&filter, &autoapp::service::OpenautoEventFilter::onAppEvent, [&projectionPage, &stackedWidget, &openautoApp](openauto::service::AppEventType value) {
@@ -144,7 +142,7 @@ int main(int argc, char* argv[])
 
     autoapp::service::SteeringWheelControl swcWorker;
     swcWorker.start();
-    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, &stackedWidget, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
+    QObject::connect(&swcWorker, &autoapp::service::SteeringWheelControl::onKeyPress, [&app, &alsaWorker, &projectionPage](Qt::Key key) {
         if (key == Qt::Key_VolumeDown || key == Qt::Key_VolumeUp) {
             alsaWorker.adjustVolumeRelative(key == Qt::Key_VolumeDown ? -5 : 5);
         } else {
@@ -173,10 +171,6 @@ int main(int argc, char* argv[])
     QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&serviceFactory]() {
         serviceFactory.connectToLastBluetoothDevice();
     });
-    QTimer::singleShot(100, &app, [&serviceFactory]() {
-        OPENAUTO_LOG(info) << "Triggering bluetooth connect";
-        serviceFactory.connectToLastBluetoothDevice();
-    });
 
     auto screenSize = QGuiApplication::primaryScreen()->size();
     window.resize(screenSize);
@@ -185,6 +179,7 @@ int main(int argc, char* argv[])
     window.activateWindow();
 
     openautoApp->waitForDevice(true);
+    serviceFactory.startBluetoothAdvertising();
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));
