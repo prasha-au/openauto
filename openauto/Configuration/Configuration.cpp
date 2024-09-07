@@ -67,7 +67,7 @@ void Configuration::load()
 
         videoMargins_ = QRect(0, 0, iniConfig.get<int32_t>(cVideoMarginWidth, 0), iniConfig.get<int32_t>(cVideoMarginHeight, 0));
 
-        enableTouchscreen_ = iniConfig.get<bool>(cInputEnableTouchscreenKey, true);
+        enableTouchscreen_ = iniConfig.get<bool>(cInputEnableTouchscreenKey, false);
 
         wifiSSID_ = iniConfig.get<std::string>(cWifiSSID, "");
         wifiPassword_ = iniConfig.get<std::string>(cWifiPskey, "");
