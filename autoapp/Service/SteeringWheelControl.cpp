@@ -16,8 +16,8 @@ namespace {
 
 Qt::Key fromVoltageReading(float adcVoltage) {
     const std::map<Qt::Key, std::pair<float, float>> KEY_MAP = {
-        {Qt::Key_VolumeUp, { 0.710, 0.740 }},
-        {Qt::Key_VolumeDown, { 1.220, 1.250 }},
+        {Qt::Key_VolumeUp, { 0.710, 0.770 }},
+        {Qt::Key_VolumeDown, { 1.230, 1.270 }},
         {Qt::Key_H, { 1.600, 1.630 }},  // hook on => home
         {Qt::Key_B, { 1.670, 1.700 }},  // mode => play/pause
         {Qt::Key_N, { 2.130, 2.160 }},  // seek+ => media next
