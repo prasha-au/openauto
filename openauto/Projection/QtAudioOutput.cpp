@@ -37,7 +37,7 @@ QtAudioOutput::QtAudioOutput(uint32_t channelCount, uint32_t sampleSize, uint32_
     audioFormat_.setByteOrder(QAudioFormat::LittleEndian);
     audioFormat_.setSampleType(QAudioFormat::SignedInt);
 
-   QThread * th = QApplication::instance()->thread();
+    QThread * th = QApplication::instance()->thread();
     this->moveToThread(th);
     th->setPriority(QThread::TimeCriticalPriority);
 
@@ -52,6 +52,7 @@ void QtAudioOutput::createAudioOutput()
 {
     OPENAUTO_LOG(debug) << "[QtAudioOutput] create.";
     audioOutput_ = std::make_unique<QAudioOutput>(QAudioDeviceInfo::defaultOutputDevice(), audioFormat_);
+    audioOutput_->setBufferSize(audioFormat_.bytesForDuration(1000 * 1000));
 }
 
 bool QtAudioOutput::open()
