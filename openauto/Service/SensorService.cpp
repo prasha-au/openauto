@@ -57,7 +57,7 @@ void SensorService::fillFeatures(aasdk::proto::messages::ServiceDiscoveryRespons
     auto* sensorChannel = channelDescriptor->mutable_sensor_channel();
     sensorChannel->add_sensors()->set_type(aasdk::proto::enums::SensorType::DRIVING_STATUS);
     //sensorChannel->add_sensors()->set_type(aasdk::proto::enums::SensorType::LOCATION);
-    sensorChannel->add_sensors()->set_type(aasdk::proto::enums::SensorType::NIGHT_DATA);
+    // sensorChannel->add_sensors()->set_type(aasdk::proto::enums::SensorType::NIGHT_DATA);
 }
 
 void SensorService::onChannelOpenRequest(const aasdk::proto::messages::ChannelOpenRequest& request)
