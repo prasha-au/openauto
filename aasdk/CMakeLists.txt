@@ -23,8 +23,7 @@ target_link_libraries(aasdk
 
 target_include_directories(aasdk PRIVATE
         ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_BINARY_DIR}
 )
 
 install(TARGETS aasdk DESTINATION lib)
-
-

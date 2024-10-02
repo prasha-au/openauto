@@ -10,7 +10,6 @@ apt-get install -y cmake build-essential git curl \
     libasound2-dev
 
 
-
 git clone --single-branch https://github.com/GStreamer/qt-gstreamer
 cd qt-gstreamer
 
@@ -27,14 +26,3 @@ make -j$(nproc) && make install && ldconfig
 cd ..
 rm -Rf qt-gstreamer
 
-
-
-git clone --single-branch https://github.com/OpenDsh/aasdk
-cd aasdk
-curl -L https://raw.githubusercontent.com/openDsh/dash/develop/patches/aasdk_openssl-fips-fix.patch | git apply -v
-
-cmake -DCMAKE_BUILD_TYPE=Release .
-make -j$(nproc) && make install
-
-cd ..
-rm -Rf aasdk

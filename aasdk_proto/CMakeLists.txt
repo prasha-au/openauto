@@ -11,5 +11,3 @@ target_link_libraries(aasdk_proto ${PROTOBUF_LIBRARIES})
 
 
 install(TARGETS aasdk_proto DESTINATION lib)
-add_custom_command(TARGET aasdk_proto POST_BUILD COMMAND cp ${proto_headers} ${CMAKE_SOURCE_DIR}/include/aasdk_proto/)
-

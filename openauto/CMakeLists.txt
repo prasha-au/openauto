@@ -82,6 +82,7 @@ target_link_libraries(openauto PRIVATE
 
 target_include_directories(openauto PRIVATE
         ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_BINARY_DIR}
         )
 
 target_link_libraries(openauto PUBLIC

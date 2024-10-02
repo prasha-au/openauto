@@ -18,6 +18,7 @@ add_executable(autoapp ${BIN_SRC_FILES})
 target_include_directories(autoapp PRIVATE
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_BINARY_DIR}
         )
 
 target_link_libraries(autoapp
