@@ -6,9 +6,9 @@
 #include <QBluetoothServer>
 #include "IService.hpp"
 #include "openauto/Configuration/Configuration.hpp"
-#include <extra_protos/NetworkInfo.pb.h>
-#include <extra_protos/SocketInfoRequest.pb.h>
-#include <extra_protos/SocketInfoResponse.pb.h>
+#include "aasdk_proto/NetworkInfo.pb.h"
+#include "aasdk_proto/SocketInfoRequest.pb.h"
+#include "aasdk_proto/SocketInfoResponse.pb.h"
 
 namespace openauto
 {

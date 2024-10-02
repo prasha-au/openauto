@@ -82,7 +82,6 @@ target_link_libraries(openauto PRIVATE
 
 target_include_directories(openauto PRIVATE
         ${CMAKE_SOURCE_DIR}/include
-        ${Protobuf_INCLUDE_DIRS}
         )
 
 target_link_libraries(openauto PUBLIC
@@ -90,8 +89,8 @@ target_link_libraries(openauto PUBLIC
         Threads::Threads
         ${Boost_LIBRARIES}
         aasdk
+        aasdk_proto
         Qt5::Bluetooth
         Qt5::MultimediaWidgets
-        extra_protos
         ${Protobuf_LIBRARIES}
         )

@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package aasdk.proto.messages;
+
+message SocketInfoRequest
+{
+    required string ip_address = 1;
+    optional uint32 port = 2;
+}

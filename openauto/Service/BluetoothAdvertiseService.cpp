@@ -119,7 +119,7 @@ void BluetoothAdvertiseService::writeSocketInfoRequest()
         }
     }
 
-    extraprotos::SocketInfoRequest socketInfoRequest;
+    aasdk::proto::messages::SocketInfoRequest socketInfoRequest;
     socketInfoRequest.set_ip_address(ipAddr.toStdString());
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] ipAddress: "<< ipAddr.toStdString();
 
@@ -147,15 +147,15 @@ void BluetoothAdvertiseService::writeSocketInfoResponse()
         }
     }
 
-    extraprotos::SocketInfoResponse socketInfoResponse;
+    aasdk::proto::messages::SocketInfoResponse socketInfoResponse;
     socketInfoResponse.set_ip_address(ipAddr.toStdString());
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] ipAddress: "<< ipAddr.toStdString();
 
     socketInfoResponse.set_port(5000);
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] port: "<< 5000;
 
-    socketInfoResponse.set_status(extraprotos::Status::STATUS_SUCCESS);
-    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] status: "<< extraprotos::Status::STATUS_SUCCESS;
+    socketInfoResponse.set_status(aasdk::proto::messages::Status::STATUS_SUCCESS);
+    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] status: "<< aasdk::proto::messages::Status::STATUS_SUCCESS;
 
 
     if(this->writeProtoMessage(7, socketInfoResponse))
@@ -170,7 +170,7 @@ void BluetoothAdvertiseService::writeSocketInfoResponse()
 
 void BluetoothAdvertiseService::handleSocketInfoRequestResponse(QByteArray data)
 {
-    extraprotos::SocketInfoResponse socketInfoResponse;
+    aasdk::proto::messages::SocketInfoResponse socketInfoResponse;
     socketInfoResponse.ParseFromArray(data, data.size());
     OPENAUTO_LOG(info) <<"[BluetoothAdvertiseService] Received SocketInfoRequestResponse, status: "<<socketInfoResponse.status();
     if(socketInfoResponse.status() == 0)
@@ -187,7 +187,7 @@ void BluetoothAdvertiseService::handleSocketInfoRequest(QByteArray data)
 {
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] Reading SocketInfoRequest.";
 
-    extraprotos::SocketInfoRequest socketInfoRequest;
+    aasdk::proto::messages::SocketInfoRequest socketInfoRequest;
 
     writeSocketInfoResponse();
 }
@@ -196,7 +196,7 @@ void BluetoothAdvertiseService::writeNetworkInfoMessage()
 {
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] Sending NetworkInfoMessage.";
 
-    extraprotos::NetworkInfo networkMessage;
+    aasdk::proto::data::NetworkInfo networkMessage;
     networkMessage.set_ssid(config_->getWifiSSID());
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] SSID: "<<config_->getWifiSSID();
 
@@ -206,11 +206,11 @@ void BluetoothAdvertiseService::writeNetworkInfoMessage()
     networkMessage.set_mac_addr(QNetworkInterface::interfaceFromName("wlan0").hardwareAddress().toStdString());
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] MAC: "<<QNetworkInterface::interfaceFromName("wlan0").hardwareAddress().toStdString();
 
-    networkMessage.set_security_mode(extraprotos::SecurityMode::WPA2_PERSONAL);
-    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] Security: "<< extraprotos::SecurityMode::WPA2_PERSONAL;
+    networkMessage.set_security_mode(aasdk::proto::data::SecurityMode::WPA2_PERSONAL);
+    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] Security: "<< aasdk::proto::data::SecurityMode::WPA2_PERSONAL;
 
-    networkMessage.set_ap_type(extraprotos::AccessPointType::STATIC);
-    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] AP Type: "<< extraprotos::AccessPointType::STATIC;
+    networkMessage.set_ap_type(aasdk::proto::data::AccessPointType::STATIC);
+    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] AP Type: "<< aasdk::proto::data::AccessPointType::STATIC;
 
 
     if(this->writeProtoMessage(3, networkMessage))
