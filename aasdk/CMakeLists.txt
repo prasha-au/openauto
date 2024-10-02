@@ -1,5 +1,4 @@
 
-
 file(GLOB_RECURSE AASDK_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE AASDK_INCLUDE_FILES ${CMAKE_SOURCE_DIR}/include/aasdk/*.hpp)
 
@@ -9,9 +8,8 @@ list(REMOVE_ITEM AASDK_SRC_FILES ${AASDK_TEST_SRC_FILES})
 
 add_library(aasdk SHARED
         ${AASDK_SRC_FILES}
-        ${AASDK_INCLUDE_FILES})
-
-add_dependencies(aasdk aasdk_proto)
+        ${AASDK_INCLUDE_FILES}
+)
 
 target_link_libraries(aasdk
         aasdk_proto
@@ -25,5 +23,3 @@ target_include_directories(aasdk PRIVATE
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_BINARY_DIR}
 )
-
-install(TARGETS aasdk DESTINATION lib)
