@@ -1,0 +1,105 @@
+FROM https://downloads.raspberrypi.com/raspios_lite_armhf/images/raspios_lite_armhf-2024-07-04/2024-07-04-raspios-bookworm-armhf-lite.img.xz
+
+
+
+RUN tee /boot/firmware/custom.toml <<EOF
+
+config_version = 1
+
+[system]
+hostname = "openauto"
+
+[user]
+name = "oa"
+password = "oa"
+password_encrypted = false
+
+[ssh]
+enabled = true
+password_authentication = true
+
+
+[locale]
+keymap = "us"
+timezone = "Australia/Perth"
+
+EOF
+
+
+
+RUN tee /boot/firmware/config.txt <<EOF
+dtparam=i2c_arm=on
+dtoverlay=pi3-disable-wifi
+
+camera_auto_detect=0
+display_auto_detect=0
+auto_initramfs=0
+
+dtoverlay=vc4-fkms-v3d
+max_framebuffers=1
+gpu_mem=256
+
+disable_fw_kms_setup=1
+
+disable_overscan=1
+
+arm_boost=1
+
+
+boot_delay=0
+initial_turbo=30
+start_cd=1
+dtoverlay=sdtweak,overclock_50=100
+disable_splash=1
+
+avoid_warnings=1
+
+EOF
+
+
+# TODO: this is dodgey...
+RUN tee /boot/firmware/cmdline.txt <<EOF
+console=tty1 root=PARTUUID=d28ec40f-02 rootfstype=ext4 elevator=noop fsck.mode=skip fsck.repair=yes rootwait quiet logo.nologo loglevel=0 noswap plymouth.ignore-serial-consoles consoleblank=0 init=/usr/lib/raspberrypi-sys-mods/firstboot
+EOF
+
+
+RUN sed -i '/^#UseDNS no/s/^#//' /etc/ssh/sshd_config
+
+# TODO: This appears to be overwritten
+RUN systemctl --quiet set-default multi-user.target
+RUN tee /etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --skip-login --nonewline --noissue --autologin oa --noclear %I $TERM
+EOF
+
+
+RUN touch /home/pi/.hushlogin
+
+
+
+
+
+# PUMP 1G
+
+# WORKDIR /tmp/openauto
+
+
+# INSTALL 755 /openauto/tooling/setup_runtime.sh /tmp/openauto/setup_runtime.sh
+# INSTALL 755 /openauto/tooling/setup_deps.sh /tmp/openauto/setup_deps.sh
+
+# RUN apt-get update
+
+# RUN ./setup_runtime.sh
+# RUN ./setup_deps.sh
+
+# RUN git clone https://github.com/prasha-au/openauto.git
+# RUN cd openauto && cmake -Bbuild -Drelease && cmake --build build
+
+
+# RUN mkdir /openauto && cp -Rf /tmp/openauto/build/assets/* /openauto
+# RUN rm -Rf /tmp/openauto
+
+# RUN raspi-config nonint do_ssh 0
+
+
