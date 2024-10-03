@@ -41,7 +41,6 @@ find_package(libusb-1.0 REQUIRED)
 find_package(Qt5 COMPONENTS Multimedia MultimediaWidgets Bluetooth Qml Quick QuickWidgets REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(aasdk REQUIRED)
 find_package(Threads)
 
 find_package(GObject)
@@ -54,11 +53,8 @@ pkg_check_modules(GST REQUIRED
                   gstreamer-app-1.0>=1.4)
 message(STATUS "${GST_LIBRARIES}")
 
-
-add_subdirectory(extra_protos)
-set(EXTRA_PROTOS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${EXTRA_PROTOS_INCLUDE_DIR})
-
+add_subdirectory(aasdk_proto)
+add_subdirectory(aasdk)
 add_subdirectory(openauto)
 add_subdirectory(autoapp)
-add_dependencies(autoapp extra_protos)
+
