@@ -17,6 +17,7 @@
 #include "openauto/App.hpp"
 #include "openauto/Service/AndroidAutoEntityFactory.hpp"
 #include "openauto/Service/ServiceFactory.hpp"
+#include "openauto/Service/BluetoothAdvertiseService.hpp"
 #include "openauto/Configuration/Configuration.hpp"
 #include "./Pages/HomePage.hpp"
 #include "./Pages/ProjectionPage.hpp"
@@ -113,6 +114,7 @@ int main(int argc, char* argv[])
     aasdk::usb::AccessoryModeQueryChainFactory queryChainFactory(usbWrapper, ioService, queryFactory);
     openauto::service::ServiceFactory serviceFactory(ioService, configuration, projectionPage.aaFrame);
     openauto::service::AndroidAutoEntityFactory androidAutoEntityFactory(ioService, configuration, serviceFactory);
+    openauto::service::BluetoothAdvertiseService bluetoothAdvertiseService(configuration);
 
     auto usbHub(std::make_shared<aasdk::usb::USBHub>(usbWrapper, ioService, queryChainFactory));
     auto connectedAccessoriesEnumerator(std::make_shared<aasdk::usb::ConnectedAccessoriesEnumerator>(usbWrapper, ioService, queryChainFactory));
@@ -129,6 +131,7 @@ int main(int argc, char* argv[])
             case openauto::service::AppEventType::ProjectionEnd:
                 projectionPage.hide();
                 stackedWidget.setCurrentIndex(0);
+                openautoApp->stop();
                 break;
         }
     });
@@ -168,8 +171,8 @@ int main(int argc, char* argv[])
         }
     });
 
-    QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&serviceFactory]() {
-        serviceFactory.connectToLastBluetoothDevice();
+    QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&bluetoothAdvertiseService]() {
+        bluetoothAdvertiseService.connectToLastPairedDevice();
     });
 
     auto screenSize = QGuiApplication::primaryScreen()->size();
@@ -179,7 +182,7 @@ int main(int argc, char* argv[])
     window.activateWindow();
 
     openautoApp->waitForDevice(true);
-    serviceFactory.startBluetoothAdvertising();
+    bluetoothAdvertiseService.startAdvertising();
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));
