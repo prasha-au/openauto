@@ -131,7 +131,11 @@ int main(int argc, char* argv[])
             case openauto::service::AppEventType::ProjectionEnd:
                 projectionPage.hide();
                 stackedWidget.setCurrentIndex(0);
-                openautoApp->stop();
+                openautoApp->onAndroidAutoQuit();
+                break;
+            case openauto::service::AppEventType::AndroidAutoStopped:
+                projectionPage.hide();
+                stackedWidget.setCurrentIndex(0);
                 break;
         }
     });
@@ -172,6 +176,7 @@ int main(int argc, char* argv[])
     });
 
     QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&bluetoothAdvertiseService]() {
+        OPENAUTO_LOG(info) << "Connect bluetooth";
         bluetoothAdvertiseService.connectToLastPairedDevice();
     });
 

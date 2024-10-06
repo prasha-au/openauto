@@ -13,6 +13,7 @@ enum AppEventType
 {
     ProjectionShow,
     ProjectionEnd,
+    AndroidAutoStopped,
 };
 
 extern const QEvent::Type TYPE_OPENAUTO;
