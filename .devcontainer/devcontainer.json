@@ -19,7 +19,6 @@
 		"PULSE_SERVER": "tcp:host.docker.internal"
 	},
 	"mounts": [
-		"source=${localWorkspaceFolder}/.devcontainer/.bash_profile,target=/root/.bash_profile,type=bind,consistency=cached",
 		"source=openauto-builds,target=${containerWorkspaceFolder}/builds,type=volume"
 	],
 	"runArgs": [

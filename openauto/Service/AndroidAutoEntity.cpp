@@ -234,8 +234,6 @@ void AndroidAutoEntity::onVoiceSessionRequest(const aasdk::proto::messages::Voic
 
 void AndroidAutoEntity::onPingRequest(const aasdk::proto::messages::PingRequest& request)
 {
-    OPENAUTO_LOG(info) << "[AndroidAutoEntity] Ping Request";
-
     aasdk::proto::messages::PingResponse response;
     response.set_timestamp(request.timestamp());
     auto promise = aasdk::channel::SendPromise::defer(strand_);

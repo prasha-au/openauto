@@ -8,6 +8,8 @@
 #include <QStyleFactory>
 #include <QMetaType>
 #include <QScreen>
+#include <QString>
+#include <QProcess>
 #include "aasdk/USB/USBHub.hpp"
 #include "aasdk/USB/ConnectedAccessoriesEnumerator.hpp"
 #include "aasdk/USB/AccessoryModeQueryChain.hpp"
@@ -58,6 +60,12 @@ void startIOServiceWorkers(boost::asio::io_service& ioService, ThreadPool& threa
     threadPool.emplace_back(ioServiceWorker);
 }
 
+
+void reconnectToLastBluetoothDevice(QString address)
+{
+    auto connectCommand = QString("bluetoothctl disconnect %1 && bluetoothctl connect %1").arg(address);
+    QProcess::startDetached("/bin/sh", QStringList() << "-c" << connectCommand);
+}
 
 
 int main(int argc, char* argv[])
@@ -141,8 +149,26 @@ int main(int argc, char* argv[])
     });
 
 
-    alsaWorker.start();
+    auto screenSize = QGuiApplication::primaryScreen()->size();
+    window.resize(screenSize);
+    projectionPage.aaFrame->resize(screenSize);
+    window.show();
+    window.activateWindow();
 
+    alsaWorker.start();
+    openautoApp->waitForDevice(true);
+    bluetoothAdvertiseService.startAdvertising();
+
+    // ===================================== BLUETOOTH CONNECT
+    auto lastPairedAddress = QString::fromStdString(configuration->getLastBluetoothPair());
+    if (!lastPairedAddress.isEmpty()) {
+        QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&lastPairedAddress]() {
+            OPENAUTO_LOG(info) << "Connect bluetooth";
+            reconnectToLastBluetoothDevice(lastPairedAddress);
+        });
+        OPENAUTO_LOG(info) << "Autoconnecting bluetooth";
+        reconnectToLastBluetoothDevice(lastPairedAddress);
+    }
 
     // ===================================== KEYPRESS FORWARDER
     qRegisterMetaType<Qt::Key>();
@@ -158,9 +184,7 @@ int main(int argc, char* argv[])
         }
     });
 
-
     // ===================================== DEVELOPMENT TEST CONNECT
-
     QObject::connect(&homePage, &autoapp::pages::HomePage::testConnect, [&openautoApp, &tcpWrapper, &ioService]() {
         OPENAUTO_LOG(info) << "Test connection";
         aasdk::tcp::ITCPEndpoint::SocketPointer socket = std::make_shared<boost::asio::ip::tcp::socket>(ioService);
@@ -174,20 +198,6 @@ int main(int argc, char* argv[])
             OPENAUTO_LOG(error) << "Failed to open socket";
         }
     });
-
-    QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&bluetoothAdvertiseService]() {
-        OPENAUTO_LOG(info) << "Connect bluetooth";
-        bluetoothAdvertiseService.connectToLastPairedDevice();
-    });
-
-    auto screenSize = QGuiApplication::primaryScreen()->size();
-    window.resize(screenSize);
-    projectionPage.aaFrame->resize(screenSize);
-    window.show();
-    window.activateWindow();
-
-    openautoApp->waitForDevice(true);
-    bluetoothAdvertiseService.startAdvertising();
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));
