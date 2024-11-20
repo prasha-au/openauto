@@ -8,6 +8,8 @@
 #include <QStyleFactory>
 #include <QMetaType>
 #include <QScreen>
+#include <QString>
+#include <QProcess>
 #include "aasdk/USB/USBHub.hpp"
 #include "aasdk/USB/ConnectedAccessoriesEnumerator.hpp"
 #include "aasdk/USB/AccessoryModeQueryChain.hpp"
@@ -17,6 +19,7 @@
 #include "openauto/App.hpp"
 #include "openauto/Service/AndroidAutoEntityFactory.hpp"
 #include "openauto/Service/ServiceFactory.hpp"
+#include "openauto/Service/BluetoothAdvertiseService.hpp"
 #include "openauto/Configuration/Configuration.hpp"
 #include "./Pages/HomePage.hpp"
 #include "./Pages/ProjectionPage.hpp"
@@ -57,6 +60,12 @@ void startIOServiceWorkers(boost::asio::io_service& ioService, ThreadPool& threa
     threadPool.emplace_back(ioServiceWorker);
 }
 
+
+void reconnectToLastBluetoothDevice(QString address)
+{
+    auto connectCommand = QString("bluetoothctl disconnect %1 && bluetoothctl connect %1").arg(address);
+    QProcess::startDetached("/bin/sh", QStringList() << "-c" << connectCommand);
+}
 
 
 int main(int argc, char* argv[])
@@ -113,6 +122,7 @@ int main(int argc, char* argv[])
     aasdk::usb::AccessoryModeQueryChainFactory queryChainFactory(usbWrapper, ioService, queryFactory);
     openauto::service::ServiceFactory serviceFactory(ioService, configuration, projectionPage.aaFrame);
     openauto::service::AndroidAutoEntityFactory androidAutoEntityFactory(ioService, configuration, serviceFactory);
+    openauto::service::BluetoothAdvertiseService bluetoothAdvertiseService(configuration);
 
     auto usbHub(std::make_shared<aasdk::usb::USBHub>(usbWrapper, ioService, queryChainFactory));
     auto connectedAccessoriesEnumerator(std::make_shared<aasdk::usb::ConnectedAccessoriesEnumerator>(usbWrapper, ioService, queryChainFactory));
@@ -129,13 +139,36 @@ int main(int argc, char* argv[])
             case openauto::service::AppEventType::ProjectionEnd:
                 projectionPage.hide();
                 stackedWidget.setCurrentIndex(0);
+                openautoApp->onAndroidAutoQuit();
+                break;
+            case openauto::service::AppEventType::AndroidAutoStopped:
+                projectionPage.hide();
+                stackedWidget.setCurrentIndex(0);
                 break;
         }
     });
 
 
-    alsaWorker.start();
+    auto screenSize = QGuiApplication::primaryScreen()->size();
+    window.resize(screenSize);
+    projectionPage.aaFrame->resize(screenSize);
+    window.show();
+    window.activateWindow();
 
+    alsaWorker.start();
+    openautoApp->waitForDevice(true);
+    bluetoothAdvertiseService.startAdvertising();
+
+    // ===================================== BLUETOOTH CONNECT
+    auto lastPairedAddress = QString::fromStdString(configuration->getLastBluetoothPair());
+    if (!lastPairedAddress.isEmpty()) {
+        QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&lastPairedAddress]() {
+            OPENAUTO_LOG(info) << "Connect bluetooth";
+            reconnectToLastBluetoothDevice(lastPairedAddress);
+        });
+        OPENAUTO_LOG(info) << "Autoconnecting bluetooth";
+        reconnectToLastBluetoothDevice(lastPairedAddress);
+    }
 
     // ===================================== KEYPRESS FORWARDER
     qRegisterMetaType<Qt::Key>();
@@ -151,9 +184,7 @@ int main(int argc, char* argv[])
         }
     });
 
-
     // ===================================== DEVELOPMENT TEST CONNECT
-
     QObject::connect(&homePage, &autoapp::pages::HomePage::testConnect, [&openautoApp, &tcpWrapper, &ioService]() {
         OPENAUTO_LOG(info) << "Test connection";
         aasdk::tcp::ITCPEndpoint::SocketPointer socket = std::make_shared<boost::asio::ip::tcp::socket>(ioService);
@@ -167,19 +198,6 @@ int main(int argc, char* argv[])
             OPENAUTO_LOG(error) << "Failed to open socket";
         }
     });
-
-    QObject::connect(&homePage, &autoapp::pages::HomePage::bluetoothConnect, [&serviceFactory]() {
-        serviceFactory.connectToLastBluetoothDevice();
-    });
-
-    auto screenSize = QGuiApplication::primaryScreen()->size();
-    window.resize(screenSize);
-    projectionPage.aaFrame->resize(screenSize);
-    window.show();
-    window.activateWindow();
-
-    openautoApp->waitForDevice(true);
-    serviceFactory.startBluetoothAdvertising();
 
     auto result = app.exec();
     std::for_each(threadPool.begin(), threadPool.end(), std::bind(&std::thread::join, std::placeholders::_1));

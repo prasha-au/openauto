@@ -48,7 +48,6 @@ void VideoService::stop()
     strand_.dispatch([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[VideoService] stop.";
         videoOutput_->stop();
-        emitAppEvent(AppEventType::ProjectionEnd);
     });
 }
 

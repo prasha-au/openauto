@@ -12,6 +12,11 @@ HomePage::HomePage(QWidget *parent)
   , ui_(new Ui::HomePage)
 {
   ui_->setupUi(this);
+
+#ifndef QT_DEBUG
+  ui_->pushButtonTestConnect->hide();
+#endif
+
   connect(ui_->pushButtonTestConnect, &QPushButton::clicked, this, &HomePage::testConnect);
   connect(ui_->pushButtonBluetooth, &QPushButton::clicked, this, &HomePage::bluetoothConnect);
   connect(ui_->pushButtonExit, &QPushButton::clicked, this, &HomePage::exit);

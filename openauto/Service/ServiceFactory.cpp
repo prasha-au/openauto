@@ -49,7 +49,6 @@ ServiceFactory::ServiceFactory(boost::asio::io_service& ioService, configuration
     , activeArea_(activeArea)
     , screenGeometry_(this->mapActiveAreaToGlobal(activeArea_))
     , qtVideoOutput_((QGst::init(nullptr, nullptr), std::make_shared<projection::QtVideoOutput>(configuration_, activeArea_)))
-    , bluetoothAdveriseService_(std::make_shared<BluetoothAdvertiseService>(configuration_))
     , nightMode_(nightMode)
 {
     OPENAUTO_LOG(info) << "SERVICE FACTORY INITED";
@@ -177,16 +176,6 @@ QRect ServiceFactory::mapActiveAreaToGlobal(QWidget* activeArea)
     QPoint p = activeArea->mapToGlobal(g.topLeft());
 
     return QRect(p.x(), p.y(), g.width(), g.height());
-}
-
-void ServiceFactory::startBluetoothAdvertising()
-{
-    bluetoothAdveriseService_->startAdvertising();
-}
-
-void ServiceFactory::connectToLastBluetoothDevice()
-{
-    bluetoothAdveriseService_->connectToLastPairedDevice();
 }
 
 

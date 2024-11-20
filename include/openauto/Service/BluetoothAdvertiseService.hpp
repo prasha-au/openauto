@@ -22,7 +22,6 @@ class BluetoothAdvertiseService: public QObject
 public:
     BluetoothAdvertiseService(configuration::Configuration::Pointer configuration);
     void startAdvertising();
-    void connectToLastPairedDevice();
 
 
 private slots:

@@ -3,8 +3,6 @@
 #include "OpenautoLog.hpp"
 #include "openauto/Service/BluetoothAdvertiseService.hpp"
 #include <QBluetoothLocalDevice>
-#include <QProcess>
-#include <QStringList>
 
 namespace openauto
 {
@@ -259,14 +257,6 @@ void BluetoothAdvertiseService::readSocket()
             data.remove(0, 4);
             handleUnknownMessage(messageType, data);
             break;
-    }
-}
-
-void BluetoothAdvertiseService::connectToLastPairedDevice()
-{
-    QString lastPairedAddress = QString::fromStdString(config_->getLastBluetoothPair());
-    if (!lastPairedAddress.isEmpty()) {
-        QProcess::startDetached("bluetoothctl", QStringList() << "connect" << lastPairedAddress);
     }
 }
 

@@ -20,6 +20,7 @@
 #include "aasdk/USB/AOAPDevice.hpp"
 #include "aasdk/TCP/TCPEndpoint.hpp"
 #include "openauto/App.hpp"
+#include "openauto/Service/AppEvent.hpp"
 #include "OpenautoLog.hpp"
 
 namespace openauto
@@ -162,8 +163,12 @@ void App::onAndroidAutoQuit()
     strand_.dispatch([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[App] quit.";
 
-        androidAutoEntity_->stop();
-        androidAutoEntity_.reset();
+        if (androidAutoEntity_ != nullptr) {
+            androidAutoEntity_->stop();
+            androidAutoEntity_.reset();
+            openauto::service::emitAppEvent(openauto::service::AppEventType::AndroidAutoStopped);
+        }
+
 
         if(!isStopped_)
         {
