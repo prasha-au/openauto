@@ -119,7 +119,7 @@ void BluetoothAdvertiseService::writeSocketInfoRequest()
 
     aasdk::proto::messages::SocketInfoRequest socketInfoRequest;
     socketInfoRequest.set_ip_address(ipAddr.toStdString());
-OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] ipAddress: "<< ipAddr.toStdString();
+    OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] ipAddress: "<< ipAddr.toStdString();
 
     socketInfoRequest.set_port(5000);
     OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] port: "<< 5000;
