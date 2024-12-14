@@ -29,7 +29,6 @@ Pinger::Pinger(boost::asio::io_service& ioService, time_t duration)
     , duration_(duration)
     , cancelled_(false)
     , pingsCount_(0)
-    , pongsCount_(0)
 {
 
 }
@@ -57,7 +56,7 @@ void Pinger::ping(Promise::Pointer promise)
 void Pinger::pong()
 {
     strand_.dispatch([this, self = this->shared_from_this()]() {
-        ++pongsCount_;
+        pingsCount_ = 0;
     });
 }
 
@@ -71,7 +70,7 @@ void Pinger::onTimerExceeded(const boost::system::error_code& error)
     {
         promise_->reject(aasdk::error::Error(aasdk::error::ErrorCode::OPERATION_ABORTED));
     }
-    else if(pingsCount_ - pongsCount_ > 1)
+    else if(pingsCount_ > 2)
     {
         promise_->reject(aasdk::error::Error());
     }

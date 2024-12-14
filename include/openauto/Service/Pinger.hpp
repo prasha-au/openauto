@@ -50,7 +50,6 @@ private:
     bool cancelled_;
     Promise::Pointer promise_;
     int64_t pingsCount_;
-    int64_t pongsCount_;
 };
 
 }
