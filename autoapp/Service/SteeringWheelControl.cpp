@@ -16,14 +16,14 @@ namespace {
 
 Qt::Key fromVoltageReading(float adcVoltage) {
     const std::map<Qt::Key, std::pair<float, float>> KEY_MAP = {
-        {Qt::Key_VolumeUp, { 0.710, 0.770 }},
-        {Qt::Key_VolumeDown, { 1.230, 1.270 }},
-        {Qt::Key_H, { 1.600, 1.630 }},  // hook on => home
-        {Qt::Key_B, { 1.670, 1.700 }},  // mode => play/pause
-        {Qt::Key_N, { 2.130, 2.160 }},  // seek+ => media next
-        {Qt::Key_Escape, { 2.360, 2.390 }},  // hook off
-        {Qt::Key_V, { 2.560, 2.590 }},  // seek- => media prev
-        {Qt::Key_M, { 2.810, 2.830 }},  // talk
+        {Qt::Key_VolumeUp, { 0.600, 1.000 }},
+        {Qt::Key_VolumeDown, { 1.200, 1.500 }},
+        {Qt::Key_H, { 1.600, 1.650 }},  // hook on => home
+        {Qt::Key_B, { 1.660, 1.900 }},  // mode => play/pause
+        {Qt::Key_N, { 2.000, 2.300 }},  // seek+ => media next
+        {Qt::Key_Escape, { 2.330, 2.450 }},  // hook off
+        {Qt::Key_V, { 2.500, 2.700 }},  // seek- => media prev
+        {Qt::Key_M, { 2.800, 2.900 }},  // talk
     };
     for (const auto& pair : KEY_MAP) {
         if (pair.second.first <= adcVoltage && adcVoltage <= pair.second.second) {
@@ -81,7 +81,7 @@ bool SteeringWheelControl::setupAdc()
 
 float SteeringWheelControl::readAdcVoltage()
 {
-    const int JITTER_THRESHOLD = 500;
+    const int JITTER_THRESHOLD = 100; // 0.0125V
 
     int stableValue = 0;
     int verifyCount = 0;
