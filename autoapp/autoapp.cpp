@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
     QMainWindow window;
 
     QStackedWidget stackedWidget;
-    stackedWidget.setStyleSheet("background-color: #333333;color: #eeeeec;");
+    stackedWidget.setStyleSheet("background-color: #111111;color: #eeeeec;");
 
     autoapp::pages::HomePage homePage;
     QObject::connect(&homePage, &autoapp::pages::HomePage::exit, []() { std::exit(0); });
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 
     autoapp::service::OpenautoEventFilter filter;
     app.installEventFilter(&filter);
-    QObject::connect(&filter, &autoapp::service::OpenautoEventFilter::onAppEvent, [&projectionPage, &stackedWidget, &openautoApp](openauto::service::AppEventType value) {
+    QObject::connect(&filter, &autoapp::service::OpenautoEventFilter::onAppEvent, [&projectionPage, &homePage, &stackedWidget, &openautoApp](openauto::service::AppEventType value) {
         switch (value) {
             case openauto::service::AppEventType::ProjectionShow:
                 stackedWidget.setCurrentIndex(1);
@@ -143,10 +143,18 @@ int main(int argc, char* argv[])
                 break;
             case openauto::service::AppEventType::AndroidAutoStopped:
                 projectionPage.hide();
+                homePage.setStatusLabel("Waiting for device");
                 stackedWidget.setCurrentIndex(0);
+                break;
+            case openauto::service::AppEventType::BluetoothConnected:
+                homePage.setStatusLabel("Wireless device found");
+                break;
+            case openauto::service::AppEventType::WirelessConnecting:
+                homePage.setStatusLabel("Wireless device connecting");
                 break;
         }
     });
+    homePage.setStatusLabel("Waiting for device");
 
 
     auto screenSize = QGuiApplication::primaryScreen()->size();

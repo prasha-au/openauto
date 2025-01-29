@@ -3,6 +3,7 @@
 #include "OpenautoLog.hpp"
 #include "openauto/Service/BluetoothAdvertiseService.hpp"
 #include <QBluetoothLocalDevice>
+#include "openauto/Service/AppEvent.hpp"
 
 namespace openauto
 {
@@ -80,6 +81,7 @@ void BluetoothAdvertiseService::onClientConnected()
         OPENAUTO_LOG(info) << "[BluetoothAdvertiseService] Device Connected: " << socket_->peerName().toStdString();
         connect(socket_, SIGNAL(readyRead()), this, SLOT(readSocket()));
         writeSocketInfoRequest();
+        emitAppEvent(AppEventType::BluetoothConnected);
     }
     else
     {
