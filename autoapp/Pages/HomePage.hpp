@@ -22,6 +22,7 @@ public:
     explicit HomePage(QWidget *parent = nullptr);
     ~HomePage() override;
     void keyPressEvent(QKeyEvent* event) override;
+    void setStatusLabel(QString status);
 
 signals:
     void testConnect();

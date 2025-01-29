@@ -48,6 +48,11 @@ void HomePage::keyPressEvent(QKeyEvent* event)
   }
 }
 
+void HomePage::setStatusLabel(QString status)
+{
+  ui_->statusLabel->setText(status);
+}
+
 
 }
 }

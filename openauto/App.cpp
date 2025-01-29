@@ -22,6 +22,7 @@
 #include "openauto/App.hpp"
 #include "openauto/Service/AppEvent.hpp"
 #include "OpenautoLog.hpp"
+#include "openauto/Service/AppEvent.hpp"
 
 namespace openauto
 {
@@ -66,6 +67,7 @@ void App::start(aasdk::tcp::ITCPEndpoint::SocketPointer socket)
             return;
         }
 
+        openauto::service::emitAppEvent(openauto::service::AppEventType::WirelessConnecting);
         try
         {
             usbHub_->cancel();

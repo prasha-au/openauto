@@ -14,6 +14,8 @@ enum AppEventType
     ProjectionShow,
     ProjectionEnd,
     AndroidAutoStopped,
+    BluetoothConnected,
+    WirelessConnecting,
 };
 
 extern const QEvent::Type TYPE_OPENAUTO;
