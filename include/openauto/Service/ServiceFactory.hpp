@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "openauto/Service/IServiceFactory.hpp"
 #include "openauto/Configuration/Configuration.hpp"
 #include "openauto/Projection/InputDevice.hpp"
 #include "openauto/Projection/QtVideoOutput.hpp"
@@ -31,34 +30,31 @@ namespace openauto
 namespace service
 {
 class IAndroidAutoInterface;
-class ServiceFactory : public IServiceFactory
+class ServiceFactory
 {
 public:
     ServiceFactory(boost::asio::io_service& ioService, configuration::Configuration::Pointer configuration, QWidget* activeArea=nullptr, bool nightMode=false);
-    ServiceList create(aasdk::messenger::IMessenger::Pointer messenger) override;
+    ServiceList create(aasdk::messenger::IMessenger::Pointer messenger, bool useBluetooth);
     void setNightMode(bool nightMode);
     void sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode, projection::WheelDirection wheelDirection = projection::WheelDirection::NONE, projection::ButtonEventType buttonEventType = projection::ButtonEventType::NONE);
     void sendKeyEvent(QKeyEvent* event);
-    void setAndroidAutoInterface(IAndroidAutoInterface* aa_interface);
     static QRect mapActiveAreaToGlobal(QWidget* activeArea);
 
 private:
     IService::Pointer createVideoService(aasdk::messenger::IMessenger::Pointer messenger);
     IService::Pointer createBluetoothService(aasdk::messenger::IMessenger::Pointer messenger);
     std::shared_ptr<InputService> createInputService(aasdk::messenger::IMessenger::Pointer messenger);
-    void createAudioServices(ServiceList& serviceList, aasdk::messenger::IMessenger::Pointer messenger);
+    void createAudioServices(ServiceList& serviceList, aasdk::messenger::IMessenger::Pointer messenger, bool initOptionalChannels);
 
     boost::asio::io_service& ioService_;
     configuration::Configuration::Pointer configuration_;
     QWidget* activeArea_;
     QRect screenGeometry_;
-    std::function<void(bool)> activeCallback_;
     std::shared_ptr<projection::InputDevice> inputDevice_;
     std::shared_ptr<projection::QtVideoOutput> qtVideoOutput_;
     bool nightMode_;
     std::weak_ptr<SensorService> sensorService_;
     std::weak_ptr<InputService> inputService_;
-    IAndroidAutoInterface* aa_interface_ = nullptr;
 };
 
 }

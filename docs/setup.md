@@ -17,25 +17,6 @@ dphys-swapfile swapon
 ```
 2. `apt-get update`
 3. Run the `setup_deps.sh` and `setup_runtime.sh` scripts.
-4. Setup Pipewire for audio:
-```bash
-apt-get install -y pipewire-audio pipewire-pulse pipewire-alsa
-apt-get remove pulseaudio-alsa
-```
-5. Allow pipewire elevation by adding the following lines to `/etc/security/limits.conf`
-```conf
-@audio - nice -20
-@audio - rtprio 95
-@audio - memlock unlimited
-```
-6. Setup udev rule for USB
-```
-echo "SUBSYSTEM==\"usb\", ATTR{idVendor}==\"*\", ATTR{idProduct}==\"*\", MODE=\"0660\", GROUP=\"plugdev\"" | sudo tee /etc/udev/rules.d/51-openauto.rules
-```
-7. Install i2c headers for SWC (i2c-tools is useful for debugging)
-```bash
-apt-get install -y i2c-tools
-```
 
 
 ## 3. Install OpenAuto
@@ -71,9 +52,12 @@ dtoverlay=sdtweak,overclock_50=100
 
 disable_splash=1
 dtparam=i2c_arm=on
-dtoverlay=pi3-disable-wifi
+#dtoverlay=pi3-disable-wifi
+dtoverlay=pi3-disable-bt
 
 avoid_warnings=1
+
+gpio=26=op,dl
 ```
 2. Edit the `cmdline.txt` file with the following changes:
 ```text
@@ -109,8 +93,6 @@ sysetmctl mask systemd-fsck-root.service
 ExecStart=-/sbin/agetty --skip-login --nonewline --noissue --autologin oa --noclear %I $TERM
 ```
 
-
-
 ## 6. Wireless Setup
 1. Set wifi regulatory domain via `raspi-config`
 2. Setup hotspot via nmcli
@@ -118,13 +100,15 @@ ExecStart=-/sbin/agetty --skip-login --nonewline --noissue --autologin oa --nocl
 nmcli con delete preconfigured
 nmcli con delete hotspot
 nmcli con add type wifi ifname wlan0 mode ap con-name hotspot ssid openauto autoconnect true
-nmcli con modify hotspot 802-11-wireless.band a
-nmcli con modify hotspot 802-11-wireless.channel 165
+nmcli con modify hotspot 802-11-wireless.band bg
+nmcli con modify hotspot 802-11-wireless.channel 10
 nmcli con modify hotspot ipv4.method shared ipv4.address 192.168.4.1/24
 nmcli con modify hotspot ipv6.method disabled
 nmcli con modify hotspot wifi-sec.key-mgmt wpa-psk
-nmcli con modify hotspot wifi-sec.psk "xxxxxx"
-nmcli con modify hotspot wifi-sec.pmf 1
+nmcli con modify hotspot wifi-sec.pairwise ccmp
+nmcli con modify hotspot wifi-sec.group ccmp
+nmcli con modify hotspot wifi-sec.psk "xxxxxxxx"
+nmcli con modify hotspot wifi-sec.pmf 0
 nmcli con up hotspot
 ```
 3. Add the corresponding lines to `openauto.ini`
@@ -134,4 +118,8 @@ SSID=openauto
 Password=xxxxxx
 ```
 4. Pair and trust the phone via `bluetoothctl`
+
+
+# References
+- https://hackaday.io/project/165208-an-old-rotary-phone-as-bluetooth-set/log/162491-setting-up-the-bluetooth
 

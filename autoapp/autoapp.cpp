@@ -152,6 +152,9 @@ int main(int argc, char* argv[])
             case openauto::service::AppEventType::WirelessConnecting:
                 homePage.setStatusLabel("Wireless device connecting");
                 break;
+            case openauto::service::AppEventType::UsbConnecting:
+                homePage.setStatusLabel("USB device connecting");
+                break;
         }
     });
     homePage.setStatusLabel("Waiting for device");
@@ -198,7 +201,7 @@ int main(int argc, char* argv[])
         aasdk::tcp::ITCPEndpoint::SocketPointer socket = std::make_shared<boost::asio::ip::tcp::socket>(ioService);
         try {
             if (!tcpWrapper.connect(*socket, "192.168.1.8", 5277)) {
-                openautoApp->start(std::move(socket));
+                openautoApp->start(std::move(socket), false);
             } else {
                 OPENAUTO_LOG(info) << "TCP connection failed";
             }

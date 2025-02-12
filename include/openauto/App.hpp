@@ -24,7 +24,7 @@
 #include "aasdk/TCP/ITCPWrapper.hpp"
 #include "aasdk/TCP/ITCPEndpoint.hpp"
 #include "openauto/Service/IAndroidAutoEntityEventHandler.hpp"
-#include "openauto/Service/IAndroidAutoEntityFactory.hpp"
+#include "openauto/Service/AndroidAutoEntityFactory.hpp"
 
 namespace openauto
 {
@@ -34,11 +34,11 @@ class App: public openauto::service::IAndroidAutoEntityEventHandler, public std:
 public:
     typedef std::shared_ptr<App> Pointer;
 
-    App(boost::asio::io_service& ioService, aasdk::usb::USBWrapper& usbWrapper, aasdk::tcp::ITCPWrapper& tcpWrapper, openauto::service::IAndroidAutoEntityFactory& androidAutoEntityFactory,
+    App(boost::asio::io_service& ioService, aasdk::usb::USBWrapper& usbWrapper, aasdk::tcp::ITCPWrapper& tcpWrapper, openauto::service::AndroidAutoEntityFactory& androidAutoEntityFactory,
         aasdk::usb::IUSBHub::Pointer usbHub, aasdk::usb::IConnectedAccessoriesEnumerator::Pointer connectedAccessoriesEnumerator);
 
     void waitForDevice(bool enumerate = false);
-    void start(aasdk::tcp::ITCPEndpoint::SocketPointer socket);
+    void start(aasdk::tcp::ITCPEndpoint::SocketPointer socket, bool useBluetooth);
     void stop();
     void onAndroidAutoQuit() override;
 
@@ -54,7 +54,7 @@ private:
     aasdk::usb::USBWrapper& usbWrapper_;
     aasdk::tcp::ITCPWrapper& tcpWrapper_;
     boost::asio::io_service::strand strand_;
-    openauto::service::IAndroidAutoEntityFactory& androidAutoEntityFactory_;
+    openauto::service::AndroidAutoEntityFactory& androidAutoEntityFactory_;
     aasdk::usb::IUSBHub::Pointer usbHub_;
     boost::asio::ip::tcp::acceptor acceptor_;
     aasdk::usb::IConnectedAccessoriesEnumerator::Pointer connectedAccessoriesEnumerator_;
