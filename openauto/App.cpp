@@ -27,7 +27,7 @@
 namespace openauto
 {
 
-App::App(boost::asio::io_service& ioService, aasdk::usb::USBWrapper& usbWrapper, aasdk::tcp::ITCPWrapper& tcpWrapper, openauto::service::IAndroidAutoEntityFactory& androidAutoEntityFactory,
+App::App(boost::asio::io_service& ioService, aasdk::usb::USBWrapper& usbWrapper, aasdk::tcp::ITCPWrapper& tcpWrapper, openauto::service::AndroidAutoEntityFactory& androidAutoEntityFactory,
          aasdk::usb::IUSBHub::Pointer usbHub, aasdk::usb::IConnectedAccessoriesEnumerator::Pointer connectedAccessoriesEnumerator)
     : ioService_(ioService)
     , usbWrapper_(usbWrapper)
@@ -44,6 +44,7 @@ App::App(boost::asio::io_service& ioService, aasdk::usb::USBWrapper& usbWrapper,
 
 void App::waitForDevice(bool enumerate)
 {
+    openauto::service::emitAppEvent(openauto::service::AppEventType::AndroidAutoStopped);
     this->waitForUSBDevice();
     this->waitForWirelessDevice();
 
@@ -55,11 +56,11 @@ void App::waitForDevice(bool enumerate)
     }
 }
 
-void App::start(aasdk::tcp::ITCPEndpoint::SocketPointer socket)
+void App::start(aasdk::tcp::ITCPEndpoint::SocketPointer socket, bool useBluetooth)
 {
     OPENAUTO_LOG(info) << "[App] Wireless Device connected.";
 
-    strand_.dispatch([this, self = this->shared_from_this(), socket = std::move(socket)]() mutable {
+    strand_.dispatch([this, self = this->shared_from_this(), socket = std::move(socket), useBluetooth]() mutable {
         if(androidAutoEntity_ != nullptr)
         {
             tcpWrapper_.close(*socket);
@@ -74,7 +75,7 @@ void App::start(aasdk::tcp::ITCPEndpoint::SocketPointer socket)
             connectedAccessoriesEnumerator_->cancel();
 
             auto tcpEndpoint(std::make_shared<aasdk::tcp::TCPEndpoint>(tcpWrapper_, std::move(socket)));
-            androidAutoEntity_ = androidAutoEntityFactory_.create(std::move(tcpEndpoint));
+            androidAutoEntity_ = androidAutoEntityFactory_.create(std::move(tcpEndpoint), useBluetooth);
             androidAutoEntity_->start(*this);
         }
         catch(const aasdk::error::Error& error)
@@ -105,6 +106,7 @@ void App::stop()
 void App::aoapDeviceHandler(aasdk::usb::DeviceHandle deviceHandle)
 {
     OPENAUTO_LOG(info) << "[App] USB Device connected.";
+    openauto::service::emitAppEvent(openauto::service::AppEventType::UsbConnecting);
 
     if(androidAutoEntity_ != nullptr)
     {
@@ -157,7 +159,7 @@ void App::waitForWirelessDevice()
     OPENAUTO_LOG(info) << "[App] Waiting for Wireless device...";
 
     auto socket = std::make_shared<boost::asio::ip::tcp::socket>(ioService_);
-    acceptor_.async_accept(*socket, [this, socket](const boost::system::error_code &) { this->start(socket); });
+    acceptor_.async_accept(*socket, [this, socket](const boost::system::error_code &) { this->start(socket, true); });
 }
 
 void App::onAndroidAutoQuit()
@@ -168,7 +170,6 @@ void App::onAndroidAutoQuit()
         if (androidAutoEntity_ != nullptr) {
             androidAutoEntity_->stop();
             androidAutoEntity_.reset();
-            openauto::service::emitAppEvent(openauto::service::AppEventType::AndroidAutoStopped);
         }
 
 

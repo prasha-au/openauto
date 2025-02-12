@@ -31,3 +31,18 @@ Devcontainer should facilitate most of the heavy lifting.
 - [PulseAudio (+ a bit of setup)](https://github.com/microsoft/WSL/issues/5816#issuecomment-682242686)
 - [XOrg Server](https://github.com/marchaesen/vcxsrv)
 
+
+```bash
+cmake -B./builds/build
+cmake --build ./builds/build
+./builds/build/assets/autoapp
+```
+
+
+## Cross Compiling
+```powershell
+# create the container
+docker build -t openauto-crosscompile -f .\tooling\crosscompile.Dockerfile .
+# cross compile and copy to host:folder
+.\tooling\crosscompile.ps1 openauto:openauto
+```

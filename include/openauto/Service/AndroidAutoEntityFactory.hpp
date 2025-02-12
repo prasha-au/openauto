@@ -20,31 +20,33 @@
 
 #include <boost/asio.hpp>
 #include "aasdk/Transport/ITransport.hpp"
+#include "aasdk/TCP/ITCPEndpoint.hpp"
+#include "aasdk/USB/IAOAPDevice.hpp"
 #include "openauto/Configuration/Configuration.hpp"
-#include "IAndroidAutoEntityFactory.hpp"
-#include "IServiceFactory.hpp"
+#include "IAndroidAutoEntity.hpp"
+#include "ServiceFactory.hpp"
 
 namespace openauto
 {
 namespace service
 {
 
-class AndroidAutoEntityFactory: public IAndroidAutoEntityFactory
+class AndroidAutoEntityFactory
 {
 public:
     AndroidAutoEntityFactory(boost::asio::io_service& ioService,
                              configuration::Configuration::Pointer configuration,
-                             IServiceFactory& serviceFactory);
+                             ServiceFactory& serviceFactory);
 
-    IAndroidAutoEntity::Pointer create(aasdk::usb::IAOAPDevice::Pointer aoapDevice) override;
-    IAndroidAutoEntity::Pointer create(aasdk::tcp::ITCPEndpoint::Pointer tcpEndpoint) override;
+    IAndroidAutoEntity::Pointer create(aasdk::usb::IAOAPDevice::Pointer aoapDevice);
+    IAndroidAutoEntity::Pointer create(aasdk::tcp::ITCPEndpoint::Pointer tcpEndpoint, bool useBluetooth);
 
 private:
-    IAndroidAutoEntity::Pointer create(aasdk::transport::ITransport::Pointer transport);
+    IAndroidAutoEntity::Pointer create(aasdk::transport::ITransport::Pointer transport, bool useBluetooth);
 
     boost::asio::io_service& ioService_;
     configuration::Configuration::Pointer configuration_;
-    IServiceFactory& serviceFactory_;
+    ServiceFactory& serviceFactory_;
 };
 
 }

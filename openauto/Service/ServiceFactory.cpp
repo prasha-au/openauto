@@ -55,20 +55,22 @@ ServiceFactory::ServiceFactory(boost::asio::io_service& ioService, configuration
 
 }
 
-ServiceList ServiceFactory::create(aasdk::messenger::IMessenger::Pointer messenger)
+ServiceList ServiceFactory::create(aasdk::messenger::IMessenger::Pointer messenger, bool useBluetooth)
 {
     ServiceList serviceList;
 
     projection::IAudioInput::Pointer audioInput(new projection::QtAudioInput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
     serviceList.emplace_back(std::make_shared<AudioInputService>(ioService_, messenger, std::move(audioInput)));
-    this->createAudioServices(serviceList, messenger);
+    this->createAudioServices(serviceList, messenger, !useBluetooth);
 
     std::shared_ptr<SensorService> sensorService = std::make_shared<SensorService>(ioService_, messenger, nightMode_);
     sensorService_ = sensorService;
     serviceList.emplace_back(sensorService);
 
     serviceList.emplace_back(this->createVideoService(messenger));
-    serviceList.emplace_back(this->createBluetoothService(messenger));
+    if (useBluetooth) {
+        serviceList.emplace_back(this->createBluetoothService(messenger));
+    }
 
     std::shared_ptr<InputService> inputService = this->createInputService(messenger);
     inputService_ = inputService;
@@ -120,21 +122,18 @@ std::shared_ptr<InputService> ServiceFactory::createInputService(aasdk::messenge
     return std::make_shared<InputService>(ioService_, messenger, std::move(projection::IInputDevice::Pointer(inputDevice_)));
 }
 
-void ServiceFactory::createAudioServices(ServiceList& serviceList, aasdk::messenger::IMessenger::Pointer messenger)
+void ServiceFactory::createAudioServices(ServiceList& serviceList, aasdk::messenger::IMessenger::Pointer messenger, bool initOptionalChannels)
 {
-    auto mediaAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(2, 16, 48000), std::bind(&QObject::deleteLater, std::placeholders::_1));
-    serviceList.emplace_back(std::make_shared<MediaAudioService>(ioService_, messenger, std::move(mediaAudioOutput)));
+    if (initOptionalChannels) {
+        auto mediaAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(2, 16, 48000), std::bind(&QObject::deleteLater, std::placeholders::_1));
+        serviceList.emplace_back(std::make_shared<MediaAudioService>(ioService_, messenger, std::move(mediaAudioOutput)));
 
-    auto speechAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
-    serviceList.emplace_back(std::make_shared<SpeechAudioService>(ioService_, messenger, std::move(speechAudioOutput)));
+        auto speechAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
+        serviceList.emplace_back(std::make_shared<SpeechAudioService>(ioService_, messenger, std::move(speechAudioOutput)));
+    }
 
     auto systemAudioOutput = projection::IAudioOutput::Pointer(new projection::QtAudioOutput(1, 16, 16000), std::bind(&QObject::deleteLater, std::placeholders::_1));
     serviceList.emplace_back(std::make_shared<SystemAudioService>(ioService_, messenger, std::move(systemAudioOutput)));
-}
-
-void ServiceFactory::setAndroidAutoInterface(IAndroidAutoInterface* aa_interface){
-    if(aa_interface==NULL) return;
-    this->aa_interface_ = aa_interface;
 }
 
 void ServiceFactory::setNightMode(bool nightMode)
@@ -150,7 +149,6 @@ void ServiceFactory::sendButtonPress(aasdk::proto::enums::ButtonCode::Enum butto
 {
     if(std::shared_ptr<InputService> inputService = inputService_.lock())
     {
-
         inputService->sendButtonPress(buttonCode, wheelDirection, buttonEventType);
     }
 }

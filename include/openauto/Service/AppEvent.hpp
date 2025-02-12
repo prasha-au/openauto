@@ -16,6 +16,7 @@ enum AppEventType
     AndroidAutoStopped,
     BluetoothConnected,
     WirelessConnecting,
+    UsbConnecting,
 };
 
 extern const QEvent::Type TYPE_OPENAUTO;

@@ -180,6 +180,7 @@ void VideoService::onVideoFocusRequest(const aasdk::proto::messages::VideoFocusR
 void VideoService::sendVideoFocusIndication()
 {
     OPENAUTO_LOG(info) << "[VideoService] video focus indication.";
+    emitAppEvent(AppEventType::ProjectionShow);
 
     aasdk::proto::messages::VideoFocusIndication videoFocusIndication;
     videoFocusIndication.set_focus_mode(aasdk::proto::enums::VideoFocusMode::FOCUSED);
